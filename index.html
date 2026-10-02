@@ -1,528 +1,260 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ClearTrack — Compliance Document Tracker</title>
-  <style>
-    :root{
-      --bg:#f5f7fb;
-      --panel:#ffffff;
-      --text:#172033;
-      --muted:#6b7280;
-      --border:#e5e7eb;
-      --primary:#5b4df3;
-      --primary-dark:#4438c9;
-      --success:#15803d;
-      --success-bg:#dcfce7;
-      --warn:#b45309;
-      --warn-bg:#fef3c7;
-      --danger:#b91c1c;
-      --danger-bg:#fee2e2;
-      --info:#1d4ed8;
-      --info-bg:#dbeafe;
-      --shadow:0 8px 24px rgba(15,23,42,.06);
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClearTrack v3</title>
+<style>
+:root{
+  --bg:#f5f7fb;--panel:#fff;--text:#172033;--muted:#6b7280;--border:#e5e7eb;
+  --primary:#5b4df3;--primary-dark:#4438c9;--success:#15803d;--success-bg:#dcfce7;
+  --warn:#b45309;--warn-bg:#fef3c7;--danger:#b91c1c;--danger-bg:#fee2e2;
+  --info:#1d4ed8;--info-bg:#dbeafe;--shadow:0 8px 24px rgba(15,23,42,.06)
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
+.hidden{display:none!important}
+button{font:inherit;cursor:pointer}
+.primary{background:var(--primary);color:#fff;border:0;border-radius:9px;padding:11px 14px;font-weight:700}
+.secondary{background:#fff;color:var(--text);border:1px solid var(--border);border-radius:9px;padding:11px 14px;font-weight:700}
 
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background:var(--bg);
-      color:var(--text);
-    }
+/* LANDING */
+.hero{min-height:72vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:50px 7vw;background:linear-gradient(135deg,#f8fafc,#eef2ff)}
+.hero-copy{max-width:520px}
+.brand{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:800;margin-bottom:34px}
+.brand-mark{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#7c6cff,#4f46e5);display:grid;place-items:center;color:#fff}
+.hero h1{font-size:46px;line-height:1.05;margin:0 0 16px}
+.hero p{font-size:18px;line-height:1.6;color:var(--muted)}
+.login-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 18px 50px rgba(15,23,42,.12);max-width:420px;justify-self:end;width:100%}
+.login-card h2{margin-top:0}
+label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
+input{width:100%;padding:11px 12px;border:1px solid #d1d5db;border-radius:9px;margin-bottom:14px}
+.small{font-size:12px;color:var(--muted)}
+.preview-section{padding:52px 6vw 70px;background:#fff}
+.preview-heading{text-align:center;max-width:700px;margin:0 auto 28px}
+.preview-heading h2{font-size:30px;margin-bottom:10px}
+.preview-heading p{color:var(--muted);margin:0}
+.preview-shell{max-width:1100px;margin:0 auto;border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 24px 60px rgba(15,23,42,.1);background:#fff}
+.preview-topbar{background:#15192a;color:#fff;padding:18px 22px;font-weight:800}
+.preview-main{padding:24px;background:#f7f8fb}
+.preview-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.preview-title h3{font-size:26px;margin:0}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px}
+.stat span{font-size:12px;color:var(--muted);display:block}
+.stat strong{font-size:26px;margin-top:5px;display:block}
+.panel{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.panel-head{padding:16px 18px;border-bottom:1px solid var(--border);font-weight:800}
+table{width:100%;border-collapse:collapse}
+th,td{padding:13px 16px;text-align:left;border-bottom:1px solid var(--border);font-size:14px}
+th{background:#fafafa;color:var(--muted);font-size:12px;text-transform:uppercase}
+.badge{display:inline-flex;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:800}
+.complete{background:var(--success-bg);color:var(--success)}
+.expiring{background:var(--warn-bg);color:var(--warn)}
+.missing{background:var(--danger-bg);color:var(--danger)}
+.review{background:var(--info-bg);color:var(--info)}
 
-    .app{
-      display:grid;
-      grid-template-columns:240px 1fr;
-      min-height:100vh;
-    }
+/* LOGGED IN */
+.app{padding:28px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:14px}
+.app .stats{margin-top:20px}
+.app .panel{padding:0}
+.app .panel h2{padding:18px;margin:0;border-bottom:1px solid var(--border)}
+.empty{padding:44px;text-align:center;color:var(--muted)}
+.actions{display:flex;gap:8px}
 
-    aside{
-      background:#15192a;
-      color:#fff;
-      padding:22px 16px;
-      position:sticky;
-      top:0;
-      height:100vh;
-    }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-weight:800;
-      font-size:20px;
-      margin-bottom:26px;
-    }
-
-    .brand-mark{
-      width:34px;
-      height:34px;
-      border-radius:10px;
-      background:linear-gradient(135deg,#7c6cff,#4f46e5);
-      display:grid;
-      place-items:center;
-      font-weight:900;
-    }
-
-    nav a{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      color:#cbd5e1;
-      text-decoration:none;
-      padding:11px 12px;
-      border-radius:10px;
-      margin:4px 0;
-      font-size:14px;
-    }
-    nav a.active, nav a:hover{background:#232842;color:white}
-
-    .sidebar-note{
-      position:absolute;
-      bottom:18px;
-      left:16px;
-      right:16px;
-      font-size:12px;
-      color:#94a3b8;
-      line-height:1.4;
-    }
-
-    main{padding:28px}
-    .topbar{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:24px;
-      gap:16px;
-    }
-
-    .title h1{margin:0;font-size:28px}
-    .title p{margin:5px 0 0;color:var(--muted)}
-
-    .actions{display:flex;gap:10px;flex-wrap:wrap}
-    button,.btn{
-      border:none;
-      border-radius:10px;
-      padding:10px 14px;
-      cursor:pointer;
-      font-weight:700;
-      font-size:14px;
-    }
-    .btn-primary{background:var(--primary);color:#fff}
-    .btn-primary:hover{background:var(--primary-dark)}
-    .btn-secondary{background:#fff;border:1px solid var(--border);color:var(--text)}
-
-    .stats{
-      display:grid;
-      grid-template-columns:repeat(4,minmax(0,1fr));
-      gap:14px;
-      margin-bottom:22px;
-    }
-    .stat{
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:18px;
-      box-shadow:var(--shadow);
-    }
-    .stat .label{color:var(--muted);font-size:13px}
-    .stat .value{font-size:28px;font-weight:800;margin-top:5px}
-
-    .panel{
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:14px;
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-
-    .panel-header{
-      padding:18px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      border-bottom:1px solid var(--border);
-      gap:12px;
-      flex-wrap:wrap;
-    }
-    .panel-header h2{font-size:18px;margin:0}
-
-    .filters{display:flex;gap:8px;flex-wrap:wrap}
-    .filter-btn{
-      padding:8px 11px;
-      border-radius:9px;
-      background:#f8fafc;
-      border:1px solid var(--border);
-      color:#475569;
-      font-weight:600;
-    }
-    .filter-btn.active{background:#eef2ff;color:#4338ca;border-color:#c7d2fe}
-
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:14px 18px;text-align:left;border-bottom:1px solid var(--border);font-size:14px}
-    th{font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;background:#fafafa}
-    tr:last-child td{border-bottom:none}
-    tr:hover td{background:#fcfcff}
-
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      border-radius:999px;
-      padding:5px 9px;
-      font-size:12px;
-      font-weight:800;
-      white-space:nowrap;
-    }
-    .complete{background:var(--success-bg);color:var(--success)}
-    .expiring{background:var(--warn-bg);color:var(--warn)}
-    .missing{background:var(--danger-bg);color:var(--danger)}
-    .review{background:var(--info-bg);color:var(--info)}
-
-    .doc-name{font-weight:700}
-    .sub{color:var(--muted);font-size:12px;margin-top:3px}
-
-    .row-actions{display:flex;gap:7px;flex-wrap:wrap}
-    .mini{
-      padding:7px 10px;
-      border-radius:8px;
-      background:white;
-      border:1px solid var(--border);
-      color:#334155;
-      font-size:12px;
-      font-weight:700;
-    }
-
-    .progress-wrap{display:flex;align-items:center;gap:12px}
-    .progress{
-      width:170px;height:9px;background:#e5e7eb;border-radius:999px;overflow:hidden;
-    }
-    .progress > div{height:100%;background:var(--primary);width:0}
-
-    dialog{
-      border:none;
-      border-radius:14px;
-      width:min(560px,92vw);
-      padding:0;
-      box-shadow:0 30px 70px rgba(15,23,42,.2);
-    }
-    dialog::backdrop{background:rgba(15,23,42,.45)}
-    .modal-head,.modal-body,.modal-foot{padding:18px 20px}
-    .modal-head{border-bottom:1px solid var(--border)}
-    .modal-foot{border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
-    .field{margin-bottom:14px}
-    label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
-    input,select{
-      width:100%;
-      padding:10px 11px;
-      border:1px solid #d1d5db;
-      border-radius:9px;
-      font:inherit;
-      background:white;
-    }
-    .empty{
-      padding:38px;
-      text-align:center;
-      color:var(--muted);
-      display:none;
-    }
-
-    .notice{
-      margin-top:18px;
-      padding:12px 14px;
-      border:1px solid #c7d2fe;
-      background:#eef2ff;
-      border-radius:10px;
-      color:#3730a3;
-      font-size:13px;
-      line-height:1.45;
-    }
-
-    @media(max-width:980px){
-      .app{grid-template-columns:1fr}
-      aside{display:none}
-      .stats{grid-template-columns:repeat(2,1fr)}
-      main{padding:18px}
-      .table-wrap{overflow:auto}
-      table{min-width:900px}
-    }
-  </style>
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr;gap:32px;padding:36px 24px}
+  .login-card{justify-self:stretch;max-width:none}
+  .hero h1{font-size:38px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .preview-section{padding:40px 16px}
+  .preview-shell{overflow:auto}
+  table{min-width:780px}
+}
+</style>
 </head>
 <body>
-<div class="app">
-  <aside>
-    <div class="brand"><div class="brand-mark">C</div> ClearTrack</div>
-    <nav>
-      <a class="active" href="#">▦ Dashboard</a>
-      <a href="#">📄 Documents</a>
-      <a href="#">✓ Requirements</a>
-      <a href="#">⏰ Expirations</a>
-      <a href="#">⚙ Settings</a>
-    </nav>
-    <div class="sidebar-note">Prototype only. Data is stored locally in this browser.</div>
-  </aside>
 
-  <main>
-    <div class="topbar">
-      <div class="title">
-        <h1>Compliance Dashboard</h1>
-        <p>Track required documents, approvals, and expiration dates.</p>
-      </div>
-      <div class="actions">
-        <button class="btn-secondary" id="resetBtn">Reset Demo</button>
-        <button class="btn-primary" id="addBtn">+ Add Requirement</button>
-      </div>
+<!-- LANDING PAGE -->
+<section id="landing">
+  <div class="hero">
+    <div class="hero-copy">
+      <div class="brand"><div class="brand-mark">C</div>ClearTrack</div>
+      <h1>Keep every credential ready.</h1>
+      <p>Track licenses, certifications, screenings, immunizations, and expiration dates in one place.</p>
     </div>
 
-    <section class="stats">
-      <div class="stat"><div class="label">Completion</div><div class="value" id="completion">0%</div></div>
-      <div class="stat"><div class="label">Complete</div><div class="value" id="completeCount">0</div></div>
-      <div class="stat"><div class="label">Expiring Soon</div><div class="value" id="expiringCount">0</div></div>
-      <div class="stat"><div class="label">Missing / Review</div><div class="value" id="attentionCount">0</div></div>
-    </section>
+    <div class="login-card">
+      <h2>Log in</h2>
+      <label for="email">Email</label>
+      <input id="email" type="email" placeholder="you@example.com">
+      <label for="password">Password</label>
+      <input id="password" type="password" placeholder="••••••••">
+      <button id="loginBtn" class="primary" style="width:100%">Enter Demo</button>
+      <p class="small">Prototype login — any email/password will work.</p>
+    </div>
+  </div>
 
-    <section class="panel">
-      <div class="panel-header">
-        <div>
-          <h2>Document Requirements</h2>
-          <div class="progress-wrap" style="margin-top:10px">
-            <div class="progress"><div id="progressBar"></div></div>
-            <span id="progressText" class="sub">0 of 0 complete</span>
+  <div class="preview-section">
+    <div class="preview-heading">
+      <h2>See what your compliance dashboard can look like</h2>
+      <p>This example mirrors the original ClearTrack demo with sample credentials already filled in.</p>
+    </div>
+
+    <div class="preview-shell">
+      <div class="preview-topbar">ClearTrack — Example Dashboard</div>
+      <div class="preview-main">
+        <div class="preview-title">
+          <div>
+            <h3>Compliance Dashboard</h3>
+            <div class="small">Track required documents, approvals, and expiration dates.</div>
           </div>
+          <button class="primary">+ Add Requirement</button>
         </div>
-        <div class="filters">
-          <button class="filter-btn active" data-filter="all">All</button>
-          <button class="filter-btn" data-filter="Complete">Complete</button>
-          <button class="filter-btn" data-filter="Expiring Soon">Expiring</button>
-          <button class="filter-btn" data-filter="Missing">Missing</button>
-          <button class="filter-btn" data-filter="Under Review">Review</button>
+
+        <div class="stats">
+          <div class="stat"><span>Completion</span><strong>50%</strong></div>
+          <div class="stat"><span>Complete</span><strong>4</strong></div>
+          <div class="stat"><span>Expiring Soon</span><strong>1</strong></div>
+          <div class="stat"><span>Missing / Review</span><strong>3</strong></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">Document Requirements</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Requirement</th><th>Category</th><th>Status</th><th>Expiration</th><th>Document</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>RN License</td><td>License</td><td><span class="badge complete">Complete</span></td><td>Apr 30, 2027</td><td>CA_RN_License.pdf</td></tr>
+              <tr><td>BLS Certification</td><td>Certification</td><td><span class="badge expiring">Expiring Soon</span></td><td>Nov 12, 2026</td><td>BLS_Card.pdf</td></tr>
+              <tr><td>ACLS Certification</td><td>Certification</td><td><span class="badge complete">Complete</span></td><td>Feb 18, 2027</td><td>ACLS_Card.pdf</td></tr>
+              <tr><td>TB Screening</td><td>Screening</td><td><span class="badge review">Under Review</span></td><td>Sep 1, 2027</td><td>TB_Test_2026.pdf</td></tr>
+              <tr><td>Influenza Vaccine</td><td>Immunization</td><td><span class="badge missing">Missing</span></td><td>—</td><td>—</td></tr>
+              <tr><td>Physical Exam</td><td>Employment</td><td><span class="badge complete">Complete</span></td><td>Aug 15, 2027</td><td>Physical_Exam.pdf</td></tr>
+              <tr><td>NIHSS</td><td>Certification</td><td><span class="badge missing">Missing</span></td><td>—</td><td>—</td></tr>
+              <tr><td>Fit Test</td><td>Employment</td><td><span class="badge complete">Complete</span></td><td>Jan 5, 2027</td><td>N95_Fit_Test.pdf</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
+    </div>
+  </div>
+</section>
 
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Requirement</th>
-              <th>Category</th>
-              <th>Status</th>
-              <th>Expiration</th>
-              <th>Document</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="docRows"></tbody>
-        </table>
-        <div class="empty" id="emptyState">No requirements match this filter.</div>
-      </div>
-    </section>
+<!-- LOGGED-IN DASHBOARD -->
+<section id="app" class="app hidden">
+  <div class="top">
+    <div>
+      <h1>Your Compliance Dashboard</h1>
+      <p>Add requirements or upload credentials to get started.</p>
+    </div>
+    <div class="actions">
+      <button id="logoutBtn" class="secondary">Log out</button>
+      <button id="addBtn" class="primary">+ Add Requirement</button>
+    </div>
+  </div>
 
-    <div class="notice">
-      This MVP intentionally does not send files to a server. “Uploads” are tracked by filename only. A production healthcare compliance system would need secure authentication, encrypted storage, audit logs, role-based access, backups, and a formal privacy/security review.
-    </div>
-  </main>
-</div>
+  <div class="stats">
+    <div class="stat"><span>Completion</span><strong id="completion">0%</strong></div>
+    <div class="stat"><span>Complete</span><strong id="completeCount">0</strong></div>
+    <div class="stat"><span>Expiring Soon</span><strong id="expiringCount">0</strong></div>
+    <div class="stat"><span>Missing / Review</span><strong id="attentionCount">0</strong></div>
+  </div>
 
-<dialog id="addDialog">
-  <form method="dialog" id="addForm">
-    <div class="modal-head"><strong>Add Requirement</strong></div>
-    <div class="modal-body">
-      <div class="field">
-        <label>Requirement name</label>
-        <input id="reqName" required placeholder="e.g. BLS Certification">
-      </div>
-      <div class="field">
-        <label>Category</label>
-        <select id="reqCategory">
-          <option>Certification</option>
-          <option>Immunization</option>
-          <option>Screening</option>
-          <option>License</option>
-          <option>Employment</option>
-          <option>Other</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Status</label>
-        <select id="reqStatus">
-          <option>Missing</option>
-          <option>Under Review</option>
-          <option>Complete</option>
-          <option>Expiring Soon</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Expiration date</label>
-        <input id="reqExpiration" type="date">
-      </div>
+  <div class="panel">
+    <h2>Document Requirements</h2>
+    <div id="emptyState" class="empty">
+      <strong>No credentials yet.</strong><br>
+      Add your first requirement to start building your profile.
     </div>
-    <div class="modal-foot">
-      <button value="cancel" class="btn-secondary">Cancel</button>
-      <button value="default" class="btn-primary" id="saveReq">Add Requirement</button>
-    </div>
-  </form>
-</dialog>
-
-<dialog id="uploadDialog">
-  <form method="dialog">
-    <div class="modal-head"><strong>Attach Document</strong></div>
-    <div class="modal-body">
-      <div class="field">
-        <label id="uploadLabel">Choose document</label>
-        <input id="fileInput" type="file" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx">
-      </div>
-      <div class="field">
-        <label>New status</label>
-        <select id="uploadStatus">
-          <option>Under Review</option>
-          <option>Complete</option>
-        </select>
-      </div>
-    </div>
-    <div class="modal-foot">
-      <button value="cancel" class="btn-secondary">Cancel</button>
-      <button value="default" class="btn-primary" id="attachBtn">Attach</button>
-    </div>
-  </form>
-</dialog>
+    <table id="requirementsTable" class="hidden">
+      <thead><tr><th>Requirement</th><th>Category</th><th>Status</th><th>Expiration</th><th>Actions</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+</section>
 
 <script>
-const defaultDocs = [
-  {id:1,name:"RN License",category:"License",status:"Complete",expiration:"2027-04-30",file:"CA_RN_License.pdf"},
-  {id:2,name:"BLS Certification",category:"Certification",status:"Expiring Soon",expiration:"2026-11-12",file:"BLS_Card.pdf"},
-  {id:3,name:"ACLS Certification",category:"Certification",status:"Complete",expiration:"2027-02-18",file:"ACLS_Card.pdf"},
-  {id:4,name:"TB Screening",category:"Screening",status:"Under Review",expiration:"2027-09-01",file:"TB_Test_2026.pdf"},
-  {id:5,name:"Influenza Vaccine",category:"Immunization",status:"Missing",expiration:"",file:""},
-  {id:6,name:"Physical Exam",category:"Employment",status:"Complete",expiration:"2027-08-15",file:"Physical_Exam.pdf"},
-  {id:7,name:"NIHSS",category:"Certification",status:"Missing",expiration:"",file:""},
-  {id:8,name:"Fit Test",category:"Employment",status:"Complete",expiration:"2027-01-05",file:"N95_Fit_Test.pdf"}
-];
+document.addEventListener("DOMContentLoaded", function(){
+  const landing=document.getElementById("landing");
+  const app=document.getElementById("app");
+  const loginBtn=document.getElementById("loginBtn");
+  const logoutBtn=document.getElementById("logoutBtn");
+  const addBtn=document.getElementById("addBtn");
+  const rows=document.getElementById("rows");
+  const table=document.getElementById("requirementsTable");
+  const emptyState=document.getElementById("emptyState");
+  const completion=document.getElementById("completion");
+  const completeCount=document.getElementById("completeCount");
+  const expiringCount=document.getElementById("expiringCount");
+  const attentionCount=document.getElementById("attentionCount");
 
-let docs = JSON.parse(localStorage.getItem("cleartrack_docs") || "null") || defaultDocs;
-let activeFilter = "all";
-let uploadTargetId = null;
+  let docs=JSON.parse(localStorage.getItem("cleartrack_v3_docs")||"[]");
 
-const rows = document.getElementById("docRows");
-const emptyState = document.getElementById("emptyState");
-const addDialog = document.getElementById("addDialog");
-const uploadDialog = document.getElementById("uploadDialog");
+  function save(){localStorage.setItem("cleartrack_v3_docs",JSON.stringify(docs))}
+  function render(){
+    const complete=docs.filter(d=>d.status==="Complete").length;
+    const expiring=docs.filter(d=>d.status==="Expiring Soon").length;
+    const attention=docs.filter(d=>d.status==="Missing"||d.status==="Under Review").length;
+    const pct=docs.length?Math.round((complete/docs.length)*100):0;
 
-function save(){ localStorage.setItem("cleartrack_docs", JSON.stringify(docs)); }
+    completion.textContent=pct+"%";
+    completeCount.textContent=complete;
+    expiringCount.textContent=expiring;
+    attentionCount.textContent=attention;
 
-function badgeClass(status){
-  if(status==="Complete") return "complete";
-  if(status==="Expiring Soon") return "expiring";
-  if(status==="Missing") return "missing";
-  return "review";
-}
+    if(!docs.length){
+      table.classList.add("hidden");
+      emptyState.classList.remove("hidden");
+      rows.innerHTML="";
+      return;
+    }
 
-function prettyDate(date){
-  if(!date) return "—";
-  const [y,m,d]=date.split("-");
-  return new Date(Number(y),Number(m)-1,Number(d)).toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"});
-}
+    table.classList.remove("hidden");
+    emptyState.classList.add("hidden");
+    rows.innerHTML=docs.map(d=>`
+      <tr>
+        <td>${d.name}</td>
+        <td>${d.category}</td>
+        <td>${d.status}</td>
+        <td>${d.expiration||"—"}</td>
+        <td><button class="secondary deleteBtn" data-id="${d.id}">Delete</button></td>
+      </tr>`).join("");
 
-function escapeHtml(str=""){
-  return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-}
+    document.querySelectorAll(".deleteBtn").forEach(btn=>{
+      btn.addEventListener("click",()=>{
+        docs=docs.filter(d=>d.id!==Number(btn.dataset.id));
+        save();render();
+      });
+    });
+  }
 
-function render(){
-  const filtered = activeFilter==="all" ? docs : docs.filter(d=>d.status===activeFilter);
-  rows.innerHTML = filtered.map(d=>`
-    <tr>
-      <td><div class="doc-name">${escapeHtml(d.name)}</div><div class="sub">ID ${d.id}</div></td>
-      <td>${escapeHtml(d.category)}</td>
-      <td><span class="badge ${badgeClass(d.status)}">${d.status}</span></td>
-      <td>${prettyDate(d.expiration)}</td>
-      <td>${d.file ? escapeHtml(d.file) : '<span class="sub">No file attached</span>'}</td>
-      <td>
-        <div class="row-actions">
-          <button class="mini" onclick="openUpload(${d.id})">Upload</button>
-          <button class="mini" onclick="cycleStatus(${d.id})">Change Status</button>
-          <button class="mini" onclick="removeReq(${d.id})">Delete</button>
-        </div>
-      </td>
-    </tr>
-  `).join("");
-
-  emptyState.style.display = filtered.length ? "none" : "block";
-
-  const complete = docs.filter(d=>d.status==="Complete").length;
-  const expiring = docs.filter(d=>d.status==="Expiring Soon").length;
-  const attention = docs.filter(d=>["Missing","Under Review"].includes(d.status)).length;
-  const pct = docs.length ? Math.round((complete/docs.length)*100) : 0;
-
-  document.getElementById("completion").textContent = pct+"%";
-  document.getElementById("completeCount").textContent = complete;
-  document.getElementById("expiringCount").textContent = expiring;
-  document.getElementById("attentionCount").textContent = attention;
-  document.getElementById("progressBar").style.width = pct+"%";
-  document.getElementById("progressText").textContent = `${complete} of ${docs.length} complete`;
-}
-
-window.openUpload = function(id){
-  uploadTargetId=id;
-  const d = docs.find(x=>x.id===id);
-  document.getElementById("uploadLabel").textContent = `Attach document for ${d.name}`;
-  document.getElementById("fileInput").value="";
-  uploadDialog.showModal();
-}
-
-window.cycleStatus = function(id){
-  const order=["Missing","Under Review","Complete","Expiring Soon"];
-  const d=docs.find(x=>x.id===id);
-  d.status=order[(order.indexOf(d.status)+1)%order.length];
-  save(); render();
-}
-
-window.removeReq = function(id){
-  docs=docs.filter(x=>x.id!==id);
-  save(); render();
-}
-
-document.getElementById("addBtn").addEventListener("click",()=>addDialog.showModal());
-
-document.getElementById("saveReq").addEventListener("click",(e)=>{
-  const name=document.getElementById("reqName").value.trim();
-  if(!name){ e.preventDefault(); return; }
-  docs.push({
-    id: Date.now(),
-    name,
-    category:document.getElementById("reqCategory").value,
-    status:document.getElementById("reqStatus").value,
-    expiration:document.getElementById("reqExpiration").value,
-    file:""
-  });
-  save();
-  document.getElementById("addForm").reset();
-  render();
-});
-
-document.getElementById("attachBtn").addEventListener("click",()=>{
-  const file=document.getElementById("fileInput").files[0];
-  if(!uploadTargetId || !file) return;
-  const d=docs.find(x=>x.id===uploadTargetId);
-  d.file=file.name;
-  d.status=document.getElementById("uploadStatus").value;
-  save(); render();
-});
-
-document.querySelectorAll(".filter-btn").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    activeFilter=btn.dataset.filter;
+  loginBtn.addEventListener("click",()=>{
+    landing.classList.add("hidden");
+    app.classList.remove("hidden");
     render();
   });
-});
 
-document.getElementById("resetBtn").addEventListener("click",()=>{
-  docs=JSON.parse(JSON.stringify(defaultDocs));
-  save(); render();
-});
+  logoutBtn.addEventListener("click",()=>{
+    app.classList.add("hidden");
+    landing.classList.remove("hidden");
+    window.scrollTo(0,0);
+  });
 
-render();
+  addBtn.addEventListener("click",()=>{
+    const name=prompt("Requirement name?");
+    if(!name)return;
+    const category=prompt("Category?","Certification")||"Other";
+    const status=prompt("Status? Complete, Expiring Soon, Missing, or Under Review","Missing")||"Missing";
+    const expiration=prompt("Expiration date? (YYYY-MM-DD)","")||"";
+    docs.push({id:Date.now(),name,category,status,expiration});
+    save();render();
+  });
+});
 </script>
 </body>
 </html>
