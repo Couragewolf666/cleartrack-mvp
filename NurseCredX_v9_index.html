@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Veridun / NurseCredX v9 — RN Credential Passport</title>
+<script src="https://unpkg.com/xrpl/build/xrpl-latest-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+<style>
+:root{--bg:#f5f7fb;--p:#5b4df3;--t:#172033;--m:#6b7280;--b:#e5e7eb;--g:#15803d;--gb:#dcfce7;--y:#b45309;--yb:#fef3c7;--r:#b91c1c;--rb:#fee2e2;--i:#1d4ed8;--ib:#dbeafe;--vio:#6d28d9;--vb:#ede9fe;--dark:#15192a}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--t)}button,input,select{font:inherit}.hidden{display:none!important}button{cursor:pointer}.pri,.sec,.mini{border-radius:9px;font-weight:750}.pri{background:var(--p);color:#fff;border:0;padding:10px 14px}.sec{background:#fff;color:var(--t);border:1px solid var(--b);padding:10px 14px}.mini{background:#fff;border:1px solid var(--b);padding:7px 9px;font-size:11px}.chainbtn{background:#f5f3ff;border-color:#ddd6fe;color:var(--vio)}.goodbtn{background:#ecfdf5;border-color:#bbf7d0;color:#166534}.small{font-size:12px;color:var(--m)}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}.brand{display:flex;align-items:center;gap:10px;font-size:23px;font-weight:850}.mark{width:39px;height:39px;border-radius:11px;background:linear-gradient(135deg,#7c6cff,#4f46e5);display:grid;place-items:center;color:white}
+.hero{min-height:66vh;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding:52px 7vw;background:linear-gradient(135deg,#f8fafc,#eef2ff)}.hero h1{font-size:48px;line-height:1.04;letter-spacing:-1.4px;margin:30px 0 14px}.hero p{font-size:18px;color:var(--m);line-height:1.6}.position{display:inline-flex;padding:7px 10px;border-radius:99px;background:#eef2ff;color:#4338ca;font-size:12px;font-weight:800}.login{background:#fff;border:1px solid var(--b);border-radius:16px;padding:24px;box-shadow:0 18px 50px #0f172a1f}.login input,.modal input,.modal select,.modal textarea{width:100%;padding:11px;border:1px solid #d1d5db;border-radius:9px;margin:6px 0 13px;background:#fff}.preview{padding:52px 6vw 72px;background:#fff}.center{text-align:center;max-width:850px;margin:auto}.shell{max-width:1180px;margin:28px auto 0;border:1px solid var(--b);border-radius:16px;overflow:hidden;box-shadow:0 22px 55px #0f172a1a}.bar{background:var(--dark);color:#fff;padding:17px 20px;font-weight:800;display:flex;justify-content:space-between}.inside{padding:22px;background:#f7f8fb}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}.stat{background:#fff;border:1px solid var(--b);border-radius:12px;padding:15px}.stat span{font-size:12px;color:var(--m)}.stat b{display:block;font-size:26px;margin-top:4px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.panel{background:#fff;border:1px solid var(--b);border-radius:12px;overflow:hidden}.ph{padding:15px 17px;border-bottom:1px solid var(--b);font-weight:800;display:flex;align-items:center;gap:8px;justify-content:space-between}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:1100px;margin:26px auto 0}.card{border:1px solid var(--b);border-radius:13px;padding:18px;background:#fff}.card h3{margin:0 0 7px}.card p{margin:0;color:var(--m);font-size:13px;line-height:1.5}
+table{width:100%;border-collapse:collapse}th,td{padding:12px 14px;border-bottom:1px solid var(--b);text-align:left;font-size:13px;vertical-align:middle}th{font-size:11px;color:var(--m);background:#fafafa;text-transform:uppercase;letter-spacing:.03em}.badge{display:inline-flex;align-items:center;padding:5px 8px;border-radius:99px;font-size:10px;font-weight:850;white-space:nowrap}.VERIFIED,.ACCEPTED,.READY{background:var(--gb);color:var(--g)}.VERIFYING{background:var(--ib);color:var(--i)}.UNVERIFIED,.NOTISSUED,.PRIVATE{background:#f1f5f9;color:#64748b}.EXPIRING,.XRPLISSUED,.PENDING{background:var(--yb);color:var(--y)}.EXPIRED,.REVOKED,.BLOCKED{background:var(--rb);color:var(--r)}.REQ{background:#f5f3ff;color:var(--vio)}
+.app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}.side{background:var(--dark);color:#fff;padding:20px 15px;position:sticky;top:0;height:100vh}.side .brand{font-size:19px}.side nav{margin-top:24px}.side nav button{width:100%;text-align:left;background:transparent;border:0;color:#cbd5e1;padding:11px;border-radius:9px}.side nav button:hover,.side nav .active{background:#252a44;color:#fff}.net{position:absolute;bottom:20px;left:15px;right:15px;border:1px solid #343a56;border-radius:10px;padding:11px;font-size:11px;color:#cbd5e1;line-height:1.45}.main{padding:26px;min-width:0}.top{display:flex;justify-content:space-between;gap:12px;align-items:center}.top h1{margin:0}.actions,.rowact{display:flex;gap:7px;flex-wrap:wrap}.demo{margin:18px 0;padding:12px 14px;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:10px;display:flex;justify-content:space-between;align-items:center;gap:10px}.toolbar{padding:12px;border-bottom:1px solid var(--b);display:flex;gap:7px;flex-wrap:wrap}.filter{background:#fff;border:1px solid var(--b);border-radius:8px;padding:7px 9px;font-size:11px;font-weight:700}.filter.on{background:#eef2ff;color:#4338ca}.empty{padding:45px;text-align:center;color:var(--m)}.notice{margin-top:15px;background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:12px;color:#3730a3;font-size:12px;line-height:1.5}.progress{height:9px;background:#e5e7eb;border-radius:99px;overflow:hidden}.progress>div{height:100%;background:var(--p)}.onboard-summary{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;margin:18px 0}.readybox{background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px}.readybox h3{margin:0 0 7px}.reqrow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--b)}.reqrow:last-child{border-bottom:0}.source{font-size:11px;color:var(--m);margin-top:3px}
+dialog{border:0;border-radius:14px;padding:0;width:min(760px,94vw);box-shadow:0 30px 80px #0f172a44}dialog::backdrop{background:#0f172a70}.mh,.mb,.mf{padding:18px 20px}.mh{border-bottom:1px solid var(--b);display:flex;justify-content:space-between}.mf{border-top:1px solid var(--b);display:flex;justify-content:flex-end;gap:8px}.proof{display:grid;grid-template-columns:165px 1fr;gap:9px 12px}.proof div:nth-child(odd){color:var(--m)}.passport{border:1px solid var(--b);border-radius:13px;overflow:hidden}.passhead{background:var(--dark);color:#fff;padding:18px}.passbody{padding:17px}.passrow{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--b)}.qr{text-align:center;padding:15px}.qrgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.qrbox{border:1px solid var(--b);border-radius:12px;padding:14px;text-align:center}.qrbox h3{margin:0 0 6px}.public{min-height:100vh;padding:40px 18px}.public>div{max-width:720px;margin:auto}.provenance{background:#f8fafc;border:1px solid var(--b);border-radius:10px;padding:12px;margin-top:12px}.business{padding:52px 6vw;background:#f8fafc}.business h2{text-align:center}.business .cards{grid-template-columns:repeat(4,1fr)}
+@media(max-width:950px){.hero{grid-template-columns:1fr;gap:28px;padding:34px 22px}.hero h1{font-size:39px}.stats,.grid,.qrgrid,.onboard-summary{grid-template-columns:1fr 1fr}.cards,.business .cards{grid-template-columns:1fr 1fr}.app{grid-template-columns:1fr}.side{display:none}.main{padding:16px}.panel{overflow:auto}table{min-width:1050px}}
+@media(max-width:620px){.stats,.grid,.cards,.business .cards,.qrgrid,.onboard-summary{grid-template-columns:1fr}}
+
+.view{display:none}.view.active{display:block}
+.mobile-nav{display:none}
+.home-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 18px}
+.home-actions button{background:#fff;border:1px solid var(--b);border-radius:12px;padding:14px;text-align:left;font-weight:750}
+.home-actions button span{display:block;font-size:20px;margin-bottom:5px}
+.attention-list,.activity-list{background:#fff;border:1px solid var(--b);border-radius:12px;padding:4px 16px}
+.attention-item,.activity-item,.passport-item-v7,.task-item-v7,.opp-item-v7,.menu-item-v7{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--b)}
+.attention-item:last-child,.activity-item:last-child,.passport-item-v7:last-child,.task-item-v7:last-child,.opp-item-v7:last-child,.menu-item-v7:last-child{border-bottom:0}
+.v7-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
+.v7-head h1,.v7-head h2{margin:0}
+.passport-hero-v7{background:linear-gradient(135deg,#15192a,#252a44);color:#fff;border-radius:16px;padding:20px;margin-bottom:16px}
+.passport-hero-v7 h2{margin:0 0 6px}.passport-hero-v7 .small{color:#cbd5e1}
+.passport-actions-v7{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.passport-actions-v7 .sec{background:#fff}
+.task-category-v7{background:#fff;border:1px solid var(--b);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.task-category-v7 .cathead{padding:14px 16px;border-bottom:1px solid var(--b)}
+.task-category-v7 .counts{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.chip{font-size:11px;background:#f8fafc;border:1px solid var(--b);border-radius:999px;padding:5px 7px}
+.opp-card-v7{background:#fff;border:1px solid var(--b);border-radius:12px;padding:16px;margin-bottom:12px}
+.opp-score{font-size:24px;font-weight:850}
+.req-list{list-style:none;margin:10px 0;padding:0}.req-list li{padding:4px 0;font-size:13px}
+.user-secured{background:var(--gb);color:var(--g)}
+.user-securing{background:var(--yb);color:var(--y)}
+.user-notsecured{background:#f1f5f9;color:#64748b}
+.advanced-box{margin-top:14px;border:1px solid var(--b);border-radius:10px;overflow:hidden}
+.advanced-box summary{padding:12px 14px;background:#f8fafc;font-weight:800;cursor:pointer}
+.advanced-box .proof{padding:14px}
+.share-options{border:1px solid var(--b);border-radius:10px;padding:4px 12px;max-height:300px;overflow:auto}
+.share-option{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--b)}
+.share-option:last-child{border-bottom:0}.share-option input{width:auto}
+.share-link-box{word-break:break-all;background:#f8fafc;border:1px solid var(--b);border-radius:9px;padding:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px}
+@media(max-width:950px){
+  body{padding-bottom:76px}
+  .side{display:none!important}
+  .main{padding:16px 14px 28px}
+  .app{display:block}
+  .mobile-nav{display:grid;position:fixed;left:0;right:0;bottom:0;z-index:60;grid-template-columns:repeat(5,1fr);background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-top:1px solid var(--b);padding:7px 6px calc(7px + env(safe-area-inset-bottom))}
+  .mobile-nav button{border:0;background:transparent;color:#64748b;font-size:10px;font-weight:750;padding:5px 2px}
+  .mobile-nav button span{display:block;font-size:19px;margin-bottom:2px}
+  .mobile-nav button.active{color:var(--p)}
+  .home-actions{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:620px){
+  .v7-head{align-items:flex-start}
+}
+
+
+.role-strip{max-width:1180px;margin:18px auto 0;padding:0 22px}
+.role-strip-inner{background:#fff;border:1px solid var(--b);border-radius:14px;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 8px 25px rgba(15,23,42,.05)}
+.role-strip .role-actions{display:flex;gap:8px;flex-wrap:wrap}.role-pill,.switch-role-btn{border:1px solid var(--b);background:#fff;border-radius:10px;padding:9px 11px;font-weight:800}.role-pill.primary{background:var(--p);color:#fff;border-color:var(--p)}
+.role-workspace{display:none}.role-workspace.active{display:block}.role-shell-v81{max-width:1180px;margin:0 auto;padding:24px}
+.role-head-v81{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.role-head-v81 h1{margin:0}.role-head-v81 p{margin:5px 0 0;color:var(--m)}
+.role-tabs-v81{display:flex;gap:7px;overflow:auto;margin-bottom:14px}.role-tabs-v81 button{border:1px solid var(--b);background:#fff;border-radius:9px;padding:8px 11px;font-weight:800;white-space:nowrap}.role-tabs-v81 button.active{background:#eef2ff;border-color:#c7d2fe;color:#4338ca}
+.metrics-v81{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}.metric-v81{background:#fff;border:1px solid var(--b);border-radius:12px;padding:13px}.metric-v81 span{display:block;color:var(--m);font-size:11px}.metric-v81 b{display:block;font-size:23px;margin-top:4px}
+.panel-v81{background:#fff;border:1px solid var(--b);border-radius:12px;overflow:hidden;margin-bottom:12px}.panel-v81 .ph{padding:13px 15px;border-bottom:1px solid var(--b);font-weight:850;display:flex;justify-content:space-between;gap:10px}.panel-v81 .pb{padding:14px 15px}
+.row-v81{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--b)}.row-v81:last-child{border-bottom:0}
+.demo-tag-v81{display:inline-flex;border:1px solid #fed7aa;background:#fff7ed;color:#9a3412;border-radius:999px;padding:4px 7px;font-size:10px;font-weight:850}
+.alert-v81{padding:11px;border-radius:9px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:12px}.good-v81{padding:11px;border-radius:9px;background:#ecfdf5;border:1px solid #bbf7d0;color:#166534;font-size:12px}
+.v81-table{width:100%;border-collapse:collapse}.v81-table th,.v81-table td{padding:10px;border-bottom:1px solid var(--b);font-size:12px;text-align:left}.v81-table th{font-size:10px;text-transform:uppercase;color:var(--m);background:#fafafa}
+.audit-v81{border-left:2px solid #e5e7eb;padding-left:14px}.audit-v81 .row-v81{display:block}
+@media(max-width:900px){.metrics-v81{grid-template-columns:repeat(2,1fr)}.role-strip-inner{align-items:flex-start;flex-direction:column}.role-shell-v81{padding:16px 12px 90px}}
+
+
+/* ===== V9 additions, layered on V8.1 ===== */
+.role-card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.role-card-v9{border:1px solid var(--b);background:#fff;border-radius:12px;padding:14px;text-align:left}
+.role-card-v9 b{display:block;font-size:14px;margin-bottom:4px}.role-card-v9 .small{line-height:1.4}
+.role-card-v9.primary{border-color:#c7d2fe;background:#eef2ff}
+.catalog-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.privacy-v9{background:#eefbf3;border:1px solid #bbf7d0;color:#166534;border-radius:10px;padding:10px;margin-top:12px;font-size:12px}
+.search-results-v9{max-height:180px;overflow:auto;border:1px solid var(--b);border-radius:9px;margin-top:6px;background:#fff}
+.search-result-v9{padding:9px 10px;border-bottom:1px solid var(--b);cursor:pointer}.search-result-v9:last-child{border-bottom:0}.search-result-v9:hover{background:#f8fafc}
+.state-grid-v9{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}.state-v9{border:1px solid var(--b);border-radius:9px;padding:9px;background:#fff}.state-v9 span{display:block;font-size:10px;color:var(--m)}.state-v9 b{font-size:12px}
+.share-access-row{padding:13px 0;border-bottom:1px solid var(--b)}.share-access-row:last-child{border-bottom:0}.share-access-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.share-actions-v9{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.scope-v9{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.scope-v9 span{font-size:10px;border:1px solid var(--b);border-radius:999px;padding:4px 7px;background:#f8fafc}
+.req-status-v9{font-size:11px;margin-top:3px}.req-status-v9.ok{color:#166534}.req-status-v9.bad{color:#b42318}.req-status-v9.pending{color:#a65a00}
+.profile-grid-v9{display:grid;grid-template-columns:1fr 1fr;gap:12px}.check-grid-v9{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:6px}.check-v9{display:flex;gap:6px;align-items:center;font-size:12px}.check-v9 input{width:auto}
+.assignment-card-v9{background:#fff;border:1px solid var(--b);border-radius:12px;padding:15px;margin-bottom:10px}.assignment-top-v9{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.score-v9{font-size:25px;font-weight:900}.subnav-v9{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.event-tag-v9{font-size:10px;border-radius:999px;padding:4px 7px;background:#f1f5f9;color:#475569;font-weight:800}
+@media(max-width:850px){.role-card-grid{grid-template-columns:1fr}.catalog-grid,.profile-grid-v9{grid-template-columns:1fr}.state-grid-v9{grid-template-columns:repeat(2,1fr)}.check-grid-v9{grid-template-columns:repeat(2,1fr)}}
+
+</style>
+</head>
+<body>
+
+<section id="public" class="public hidden"><div>
+<div class="brand" style="justify-content:center;margin-bottom:20px"><div class="mark">N</div>NurseCredX</div>
+<div class="passport"><div class="passhead"><h2 style="margin:0">NurseCredX Passport</h2><div>Permission-controlled RN credential Passport</div></div><div class="passbody">
+<div id="pubStatus" class="notice">Checking authorized Passport access…</div><div id="pubRows"></div><div class="demo"><span>Credential Integrity</span><b id="pubScore">—</b></div><div id="pubOnboard" class="provenance"></div>
+<p class="small">Sensitive source documents and personal information are not included in this shared Passport view.</p>
+</div></div></div></section>
+
+<section id="landing">
+<div class="hero"><div>
+<div class="brand"><div class="mark">N</div>NurseCredX <span class="small">v9 · RN credential portability</span></div>
+<h1>Upload once. Verify once. Reuse everywhere.</h1>
+<p>Portable RN credentials and assignment readiness for faster onboarding. RNs maintain one reusable Passport; organizations compare verified credentials against assignment requirements.</p>
+<span class="position">Secure verification works quietly underneath the experience.</span>
+</div>
+<div class="login">
+  <h2 style="margin-top:0">Choose your workspace</h2>
+  <p class="small">Verified credentials. Ready anywhere.</p>
+  <div class="role-card-grid">
+    <button class="role-card-v9 primary" id="roleClinician"><b>Clinician</b><span class="small">Manage your RN Passport, renewals, assignment readiness, and secure sharing.</span></button>
+    <button class="role-card-v9" id="roleOrganization"><b>Organization</b><span class="small">Review RN candidate readiness, assignments, requirements, and Passport access.</span></button>
+    <button class="role-card-v9" id="roleVerification"><b>Verification Console</b><span class="small">AUTHORIZED ACCESS · source checks, monitoring, discrepancies, revocation, and trust.</span></button>
+  </div>
+  <p class="small" style="margin-top:12px">Prototype role selection is not authentication. Production requires secure identity, membership, permissions, and audit controls.</p>
+</div></div>
+
+<div class="preview"><div class="center"><h2>One onboarding dashboard. Portable proof underneath.</h2><p class="small">Verification provenance tells an employer where a credential came from, when it was checked, how it was checked, who verified it, whether it is active, and when it was last monitored.</p></div>
+<div class="shell"><div class="bar"><span>NurseCredX v9 — Example Dashboard</span><span>Credential Trust Layer</span></div><div class="inside">
+<div class="top"><div><h2 style="margin:0">Travel RN Onboarding</h2><span class="small">Automatic newcomer requirements</span></div><span class="badge READY">ONBOARDING READY</span></div>
+<div class="stats"><div class="stat"><span>Requirements</span><b>12</b></div><div class="stat"><span>Verified</span><b>10</b></div><div class="stat"><span>Credential Secured</span><b>5</b></div><div class="stat"><span>Credential Readiness</span><b>100%</b></div></div>
+<div class="grid"><div class="panel"><div class="ph">Licenses & Certifications</div><table><tr><td>California RN</td><td><span class="badge VERIFIED">VERIFIED</span></td><td><span class="badge ACCEPTED">CREDENTIAL SECURED</span></td></tr><tr><td>BLS</td><td><span class="badge VERIFIED">VERIFIED</span></td><td><span class="badge ACCEPTED">CREDENTIAL SECURED</span></td></tr><tr><td>ACLS</td><td><span class="badge VERIFIED">VERIFIED</span></td><td><span class="badge ACCEPTED">CREDENTIAL SECURED</span></td></tr><tr><td>NIHSS</td><td><span class="badge VERIFIED">VERIFIED</span></td><td><span class="badge XRPLISSUED">SECURING</span></td></tr></table></div>
+<div class="panel"><div class="ph">Screening & Health</div><table><tr><td>Background Check</td><td><span class="badge VERIFIED">VERIFIED</span></td><td><span class="badge PRIVATE">PRIVATE</span></td></tr><tr><td>Drug Screen</td><td><span class="badge VERIFIED">VERIFIED</span></td><td><span class="badge PRIVATE">PRIVATE</span></td></tr><tr><td>Physical</td><td><span class="badge VERIFIED">VERIFIED</span></td><td><span class="badge PRIVATE">PRIVATE</span></td></tr><tr><td>Fit Test</td><td><span class="badge VERIFIED">VERIFIED</span></td><td><span class="badge PRIVATE">PRIVATE</span></td></tr></table></div></div>
+</div></div>
+<div class="cards"><div class="card"><h3>Primary-source provenance</h3><p>Source, timestamp, verification method, verifier, status, expiration, and monitoring history travel with the credential record.</p></div><div class="card"><h3>Reusable Passport</h3><p>One master QR exposes current shareable credentials instead of generating a disconnected QR for every document.</p></div><div class="card"><h3>Machine-readable graph</h3><p>Structured credential types prepare NurseCredX for recruiter APIs and AI qualification agents.</p></div></div></div>
+
+<div class="business"><h2>Built around onboarding ROI, not blockchain hype</h2><div class="cards"><div class="card"><h3>Faster starts</h3><p>Reduce repeated credential collection and delayed clinician start dates.</p></div><div class="card"><h3>Less manual checking</h3><p>Give agencies current verification provenance and reusable proof.</p></div><div class="card"><h3>Continuous monitoring</h3><p>Architected for license/certification status refreshes instead of static PDF snapshots.</p></div><div class="card"><h3>AI-ready verification</h3><p>Future APIs can return only candidates whose required qualifications are currently verified.</p></div></div></div>
+</section>
+
+<section id="app" class="app hidden"><aside class="side"><div class="brand"><div class="mark">N</div>NurseCredX <span class="small" style="color:#cbd5e1">v9</span></div><nav>
+<button class="active v7nav" data-view="homeView">⌂ Home</button>
+<button class="v7nav" data-view="passportView">▣ Passport</button>
+<button class="v7nav" data-view="credentialsView">≡ Credentials</button>
+<button class="v7nav" data-view="assignmentsView">◫ Assignments</button>
+<button class="v7nav" data-view="tasksView">☑ Tasks</button>
+<button class="v7nav" data-view="opportunitiesView">◎ Opportunities</button>
+<button class="v7nav" data-view="shareAccessView">↗ Share & Access</button>
+<button class="v7nav" data-view="activityView">◷ Activity</button>
+<button class="v7nav" data-view="profileView">♙ Profile</button>
+<button class="v7nav" data-view="menuView">☰ Menu</button>
+</nav><div class="net"><b>Verification Network</b><div id="walletInfo">Advanced proof infrastructure stays in the background.</div></div></aside>
+<main class="main"><div id="homeView" class="view active"><div class="top"><div><h1>Alex Morgan, RN, BSN, CCRN</h1><p class="small">ICU Registered Nurse · Verify once. Stay ready. Share securely.</p></div><div class="actions"><button id="onboardBtn" class="sec">☑ View Tasks</button><button id="passBtn" class="sec">▣ View Passport</button><button id="switchRoleClinician" class="sec">Switch Role</button><button id="logout" class="sec">Log out</button><button id="addBtn" class="pri">+ Add Credential</button></div></div>
+
+<div class="home-actions">
+  <button id="v7Add"><span>＋</span>Add Credential<div class="small">Upload a new item</div></button>
+  <button id="v7Pass"><span>▣</span>View Passport<div class="small">Reusable professional profile</div></button>
+  <button id="v7Share"><span>↗</span>Share Passport<div class="small">QR or secure link</div></button>
+  <button id="v7Tasks"><span>☑</span>View Tasks<div class="small">See what needs attention</div></button>
+</div>
+<div class="demo"><span><b>Demo flow:</b> automatic onboarding list → verify RN → secure credential → open Passport → share QR.</span><button id="resetDemo" class="sec">Reset Golden Demo</button></div>
+<div class="stats"><div class="stat"><span>Portable Readiness</span><b id="onboardPct">0%</b></div><div class="stat"><span>Verified</span><b id="vcount">0</b></div><div class="stat"><span>Credential Secured</span><b id="acount">0</b></div><div class="stat"><span>Needs Action</span><b id="ncount">0</b></div></div>
+<div class="onboard-summary"><div class="readybox"><div class="top"><div><h3>RN Passport Baseline</h3><div class="small">Reusable RN Passport baseline — assignment requirements are evaluated separately.</div></div><span id="readyBadge" class="badge PENDING">IN PROGRESS</span></div><div class="progress" style="margin-top:14px"><div id="onboardBar" style="width:0%"></div></div><div id="onboardSummaryText" class="small" style="margin-top:8px">0 of 0 requirements satisfied</div></div><div class="readybox"><h3>Passport readiness</h3><div class="small">Passport readiness is based on verified, current RN credentials. Optional cryptographic proof is separate from readiness.</div></div></div>
+<div class="panel"><div class="ph">Credential Requirements <span id="busy" class="small"></span></div><div class="toolbar"><button class="filter on" data-f="all">All</button><button class="filter" data-f="Licenses & Certifications">Licenses & Certifications</button><button class="filter" data-f="Health & Immunizations">Health & Immunizations</button><button class="filter" data-f="Screening & Employment">Screening & Employment</button><button class="filter" data-f="Clinical Requirements">Clinical Requirements</button></div><div id="empty" class="empty hidden"></div><table id="tbl"><thead><tr><th>Credential</th><th>Category</th><th>Verification</th><th>Current</th><th>Portable Proof</th><th>Official Expiration</th><th>Provenance</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div>
+<div class="notice"><b>Security model:</b> PII and private documents remain off-chain. The verification network receives only minimal credential proof data. Each verification retains off-chain provenance. NFTs are optional visual badges only; Portable credential proofs are the authoritative trust object.</div>
+</div>
+<div id="passportView" class="view">
+  <div class="v7-head"><div><h1>Professional Passport</h1><div class="small">Agency-neutral, reusable credential profile</div></div><button class="sec" id="v7SharePass">Share Passport</button></div>
+  <div class="passport-hero-v7">
+    <h2>ICU Registered Nurse</h2>
+    <div class="small">Credential Readiness <b id="v7PassportReady">0%</b></div>
+    <div class="passport-actions-v7"><button class="sec" id="v7PassportQR">Show QR</button><button class="sec" id="v7PassportShare2">Share Passport</button></div>
+  </div>
+  <div id="v7PassportSections"></div>
+</div>
+
+<div id="tasksView" class="view">
+  <div class="v7-head"><div><h1>Task Center</h1><div class="small">Credential requirements organized by category</div></div></div>
+  <div id="v7TaskCategories"></div>
+</div>
+
+<div id="opportunitiesView" class="view">
+  <div class="v7-head"><div><h1>Opportunities</h1><div class="small">Credential-readiness matching — not staffing operations</div></div></div>
+  <div class="opp-card-v7">
+    <div class="opp-item-v7"><div><b>ICU RN · San Diego</b><div class="small">Credential Match</div></div><div class="opp-score" id="v7Opp1Score">0/5</div></div>
+    <ul class="req-list" id="v7Opp1Reqs"></ul>
+    <button class="pri" id="v7Opp1Action">View Requirements</button>
+  </div>
+  <div class="opp-card-v7">
+    <div class="opp-item-v7"><div><b>ICU RN · Boston</b><div class="small">Credential Match</div></div><div class="opp-score" id="v7Opp2Score">0/5</div></div>
+    <ul class="req-list" id="v7Opp2Reqs"></ul>
+    <button class="sec" id="v7Opp2Action">Complete Requirement</button>
+  </div>
+  <div class="small">Opportunities only demonstrate how verified credentials can power job-readiness matching. Payroll, recruiter chat, contracts, timecards, and assignment management are intentionally out of scope.</div>
+</div>
+
+
+<div id="credentialsView" class="view">
+  <div class="v7-head"><div><h1>Credentials</h1><div class="small">One RN Passport, many independently managed credential records</div></div><button class="pri" id="v9AddCredential">+ Add Credential</button></div>
+  <div class="panel"><div class="ph">RN Credential Passport</div><div id="v9CredentialList" class="pb"></div></div>
+</div>
+
+<div id="assignmentsView" class="view">
+  <div class="v7-head"><div><h1>Assignments</h1><div class="small">Assignment readiness is separate from Passport readiness</div></div></div>
+  <div id="v9AssignmentsList"></div>
+</div>
+
+<div id="shareAccessView" class="view">
+  <div class="v7-head"><div><h1>Share & Access</h1><div class="small">Control who can see your authorized credential assertions</div></div><button class="pri" id="v9NewShare">Share Passport</button></div>
+  <div class="subnav-v9"><button class="sec accessFilter on" data-status="ACTIVE">Active</button><button class="sec accessFilter" data-status="PENDING">Pending Requests</button><button class="sec accessFilter" data-status="EXPIRED">Expired</button><button class="sec accessFilter" data-status="REVOKED">Revoked</button></div>
+  <div class="panel"><div id="v9AccessList" class="pb"></div></div>
+</div>
+
+<div id="activityView" class="view">
+  <div class="v7-head"><div><h1>Activity</h1><div class="small">Verification, readiness, sharing, and access history</div></div></div>
+  <div class="panel"><div class="ph">Recent Activity</div><div id="v9ActivityList" class="pb audit-v81"></div></div>
+</div>
+
+<div id="profileView" class="view">
+  <div class="v7-head"><div><h1>RN Profile</h1><div class="small">Used to suggest relevant RN credentials and assignment requirements</div></div></div>
+  <div class="panel"><div class="pb">
+    <div class="profile-grid-v9">
+      <div><label>Primary role</label><input value="Registered Nurse" disabled></div>
+      <div><label>Primary specialty</label><select id="profileSpecialty"><option>ICU</option><option>CVICU</option><option>SICU</option><option>MICU</option><option>Neuro ICU</option><option>PICU</option><option>NICU</option><option>Emergency Department</option><option>PACU</option><option>Operating Room</option><option>Telemetry</option><option>PCU / Stepdown</option><option>Med-Surg</option><option>Labor & Delivery</option><option>Postpartum</option><option>Cath Lab</option><option>Interventional Radiology</option><option>Dialysis</option><option>Oncology</option><option>Psychiatry</option><option>Home Health</option><option>Hospice</option><option>Case Management</option><option>Other</option></select></div>
+    </div>
+    <label>Work types</label><div class="check-grid-v9" id="profileWorkTypes">
+      <label class="check-v9"><input type="checkbox" value="Travel" checked> Travel</label><label class="check-v9"><input type="checkbox" value="Per Diem"> Per Diem</label><label class="check-v9"><input type="checkbox" value="Rapid Response" checked> Rapid Response</label><label class="check-v9"><input type="checkbox" value="Strike"> Strike</label><label class="check-v9"><input type="checkbox" value="Local Contract"> Local Contract</label><label class="check-v9"><input type="checkbox" value="Staff"> Staff</label>
+    </div>
+    <div class="profile-grid-v9">
+      <div><label>Primary license state</label><select id="profilePrimaryState"><option value="US_CA">California</option><option value="US_MA">Massachusetts</option><option value="US_TX">Texas</option><option value="US_FL">Florida</option></select></div>
+      <div><label>Compact privilege</label><select id="profileCompact"><option value="no">No / Unknown</option><option value="yes">Yes</option></select></div>
+    </div>
+    <button class="pri" id="saveProfileV9" style="margin-top:12px">Save RN Profile</button>
+  </div></div>
+</div>
+<div id="menuView" class="view">
+  <div class="v7-head"><div><h1>Menu</h1><div class="small">RN Passport tools and settings</div></div></div>
+  <div class="panel">
+    <button class="menu-item-v7 menuGo" data-view="profileView" style="width:100%;background:white;border:0;text-align:left"><div><b>Profile</b><div class="small">Specialty, work type, and license jurisdictions</div></div><span>›</span></button>
+    <button class="menu-item-v7 menuGo" data-view="credentialsView" style="width:100%;background:white;border:0;text-align:left"><div><b>Credentials</b><div class="small">Manage uploaded and verified RN credentials</div></div><span>›</span></button>
+    <button class="menu-item-v7 menuGo" data-view="assignmentsView" style="width:100%;background:white;border:0;text-align:left"><div><b>Assignments</b><div class="small">Exact contract readiness and missing requirements</div></div><span>›</span></button>
+    <button class="menu-item-v7 menuGo" data-view="shareAccessView" style="width:100%;background:white;border:0;text-align:left"><div><b>Share & Access</b><div class="small">Active grants, requests, expirations, and revocation</div></div><span>›</span></button>
+    <button class="menu-item-v7 menuGo" data-view="activityView" style="width:100%;background:white;border:0;text-align:left"><div><b>Activity</b><div class="small">Verification and access audit history</div></div><span>›</span></button>
+    <div class="menu-item-v7"><div><b>Advanced Verification</b><div class="small">Optional cryptographic proof infrastructure</div></div><span>›</span></div>
+  </div>
+</div>
+</main></section>
+
+<nav class="mobile-nav">
+  <button class="active v7nav" data-view="homeView"><span>⌂</span>Home</button>
+  <button class="v7nav" data-view="passportView"><span>▣</span>Passport</button>
+  <button class="v7nav" data-view="tasksView"><span>☑</span>Tasks</button>
+  <button class="v7nav" data-view="opportunitiesView"><span>◎</span>Opportunities</button>
+  <button class="v7nav" data-view="menuView"><span>☰</span>Menu</button>
+</nav>
+
+
+<section id="organizationWorkspace" class="role-workspace">
+<div class="role-shell-v81"><div class="role-head-v81"><div><div class="brand"><div class="mark">N</div>NurseCredX <span class="small">Organization Demo</span></div><h1>Organization Dashboard</h1><p>Know who is ready before onboarding begins.</p></div><div><span class="demo-tag-v81">DEMO DATA</span> <button class="switch-role-btn switchRoleV81">Switch Role</button></div></div>
+<div class="role-tabs-v81"><button class="orgTab active" data-target="orgOverview">Dashboard</button><button class="orgTab" data-target="orgCandidates">Candidates</button><button class="orgTab" data-target="orgAssignments">Assignments</button><button class="orgTab" data-target="orgRequirements">Requirement Sets</button><button class="orgTab" data-target="orgAnalytics">Analytics</button></div>
+<div id="orgOverview" class="orgPanel"><div class="metrics-v81"><div class="metric-v81"><span>Ready to Submit</span><b id="orgReadyV81">0</b></div><div class="metric-v81"><span>Missing One</span><b id="orgMissingOneV81">0</b></div><div class="metric-v81"><span>Awaiting Verification</span><b id="orgAwaitV81">0</b></div><div class="metric-v81"><span>Expiring</span><b id="orgExpV81">0</b></div><div class="metric-v81"><span>Median Verification</span><b id="orgMedV81">—</b></div><div class="metric-v81"><span>Credential Reuse</span><b id="orgReuseV81">—</b></div></div><div class="panel-v81"><div class="ph">Candidate Readiness <span class="demo-tag-v81">SIMULATED</span></div><div class="pb" id="orgSummaryV81"></div></div><div class="panel-v81"><div class="ph">Boston Travel ICU</div><div class="pb" id="orgBostonV81"></div></div></div>
+<div id="orgCandidates" class="orgPanel hidden"><div class="panel-v81"><div class="ph">Candidates</div><div class="pb" id="orgCandidatesBodyV81"></div></div></div>
+<div id="orgAssignments" class="orgPanel hidden"><div class="panel-v81"><div class="ph">Assignment Readiness</div><div class="pb" id="orgAssignmentsBodyV81"></div></div></div>
+<div id="orgRequirements" class="orgPanel hidden"><div class="panel-v81"><div class="ph">Requirement Sets</div><div class="pb" id="orgRequirementsBodyV81"></div></div></div>
+<div id="orgAnalytics" class="orgPanel hidden"><div class="panel-v81"><div class="ph">Analytics <span class="demo-tag-v81">DEMO / EVENT-DERIVED</span></div><div class="pb" id="orgAnalyticsBodyV81"></div></div></div></div>
+</section>
+
+<section id="verificationWorkspace" class="role-workspace">
+<div class="role-shell-v81"><div class="role-head-v81"><div><div class="brand"><div class="mark">N</div>NurseCredX <span class="small">Verification Console</span></div><h1>Verification Console</h1><p>Primary-source checks, monitoring, discrepancies, and audit activity.</p></div><div><span class="demo-tag-v81">AUTHORIZED DEMO</span> <button class="switch-role-btn switchRoleV81">Switch Role</button></div></div>
+<div class="role-tabs-v81"><button class="verifyTab active" data-target="verifyOverview">Dashboard</button><button class="verifyTab" data-target="verifyQueueV81">Verification Queue</button><button class="verifyTab" data-target="verifyAuditV81">Audit Logs</button><button class="verifyTab" data-target="verifyAnalyticsV81">Analytics</button><button class="verifyTab" data-target="verifyProofsV81">Advanced Proofs</button></div>
+<div id="verifyOverview" class="verifyPanel"><div class="metrics-v81"><div class="metric-v81"><span>Pending</span><b id="verPendingV81">0</b></div><div class="metric-v81"><span>Verified</span><b id="verSuccessV81">0</b></div><div class="metric-v81"><span>Manual Reviews</span><b id="verManualV81">0</b></div><div class="metric-v81"><span>Failed</span><b id="verFailedV81">0</b></div><div class="metric-v81"><span>Median Time</span><b id="verMedianV81">—</b></div><div class="metric-v81"><span>Monitoring</span><b>100%</b></div></div><div class="panel-v81"><div class="ph">Verification Queue</div><div class="pb" id="verifyQueuePreviewV81"></div></div></div>
+<div id="verifyQueueV81" class="verifyPanel hidden"><div class="panel-v81"><div class="ph">Verification Queue <span class="demo-tag-v81">SIMULATED PRIMARY-SOURCE</span></div><div class="pb" id="verifyQueueBodyV81"></div></div></div>
+<div id="verifyAuditV81" class="verifyPanel hidden"><div class="panel-v81"><div class="ph">Append-Only Audit Events</div><div class="pb audit-v81" id="verifyAuditBodyV81"></div></div></div>
+<div id="verifyAnalyticsV81" class="verifyPanel hidden"><div class="panel-v81"><div class="ph">Verification Performance <span class="demo-tag-v81">DEMO DATA — NOT PRODUCTION RESULTS</span></div><div class="pb" id="verifyAnalyticsBodyV81"></div></div></div>
+<div id="verifyProofsV81" class="verifyPanel hidden"><div class="panel-v81"><div class="ph">Advanced Verification Proofs</div><div class="pb" id="verifyProofsBodyV81"></div></div></div></div>
+</section>
+
+<dialog id="add" class="modal">
+<div class="mh"><b>Add RN Credential</b><button class="sec xadd">✕</button></div>
+<div class="mb">
+  <div class="catalog-grid">
+    <div><label>Category</label><select id="catalogCategory"></select></div>
+    <div><label>Credential</label><select id="catalogCredential"></select></div>
+  </div>
+  <label>Search all credentials</label><input id="catalogSearch" placeholder="Search BLS, RN license, fit test, ICU skills...">
+  <div id="catalogSearchResults" class="search-results-v9 hidden"></div>
+  <div id="customCredentialWrap" class="hidden"><label>Custom credential name</label><input id="nm" placeholder="Custom RN credential"></div>
+  <div id="jurisdictionWrap"><label>Jurisdiction</label><select id="jurisdictionV9"><option value="">Select jurisdiction</option><option value="US_CA">California</option><option value="US_MA">Massachusetts</option><option value="US_TX">Texas</option><option value="US_FL">Florida</option><option value="NLC">Nurse Licensure Compact</option><option value="OTHER">Other</option></select></div>
+  <div id="issuerWrap"><label>Issuer</label><input id="issuerV9" placeholder="Issuer / board / employer / provider"></div>
+  <div class="catalog-grid"><div><label>Issue date</label><input id="issueDateV9" type="date"></div><div><label>Expiration date</label><input id="dt" type="date"></div></div>
+  <label>Document</label><input id="fl" type="file" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx">
+  <div class="privacy-v9">🔒 Your source document stays private. Veridun shares only authorized credential information or requirement-satisfaction assertions unless broader disclosure is explicitly approved.</div>
+  <p class="small">Adding a credential creates a Pending Verification record. Classification does not equal verification.</p>
+</div>
+<div class="mf"><button class="sec xadd">Cancel</button><button id="save" class="pri">Add Credential</button></div>
+</dialog>
+
+<dialog id="verifyDlg" class="modal"><div class="mh"><b>Primary-Source Verification</b><button class="sec xverify">✕</button></div><div class="mb"><div id="verifyName" style="font-weight:800;margin-bottom:14px"></div><label>Verification source</label><input id="vsource" placeholder="California BRN / Nursys"><label>Verification method</label><select id="vmethod"><option>Primary-source API</option><option>Primary-source web lookup</option><option>Issuer confirmation</option><option>Employer confirmation</option><option>School confirmation</option><option>Vendor verification</option><option>Demo / mocked verification</option></select><label>Verifier</label><input id="vverifier" value="NurseCredX Verification Service"><label>Current status</label><select id="vactive"><option value="true">Active / current</option><option value="false">Inactive / not current</option></select><p class="small">This MVP stores provenance locally. A production backend would retain signed audit history and continuous monitoring events.</p></div><div class="mf"><button class="sec xverify">Cancel</button><button id="confirmVerify" class="pri">Complete Verification</button></div></dialog>
+
+<dialog id="proof">
+<div class="mh"><b>Credential Proof</b><button class="sec xproof">✕</button></div>
+<div class="mb">
+  <div id="proofState" class="notice"></div>
+  <details class="advanced-box">
+    <summary>Advanced Verification Details</summary>
+    <div id="proofGrid" class="proof"></div>
+  </details>
+</div>
+<div class="mf"><button id="toPass" class="sec">Show Passport</button><a id="explorer" class="pri" target="_blank" rel="noopener">View Advanced Proof</a></div>
+</dialog>
+
+<dialog id="onboard"><div class="mh"><b>Automatic RN Passport Baseline Requirements</b><button class="sec xonboard">✕</button></div><div class="mb"><p class="small">Baseline Travel RN requirements are created automatically for a new profile. Employers can later supply custom requirement templates.</p><div id="onboardRows"></div></div><div class="mf"><button class="sec xonboard">Close</button></div></dialog>
+
+<dialog id="passport"><div class="mh"><b>NurseCredX Passport</b><button class="sec xpass">✕</button></div><div class="mb"><div class="passport"><div class="passhead"><h2 style="margin:0 0 5px">NurseCredX Passport</h2><div>Reusable healthcare professional identity</div></div><div class="passbody"><div id="passRows"></div><div class="demo"><span>Credential Integrity</span><b id="score">0%</b></div><div class="qrgrid"><div class="qrbox"><h3>Professional Passport</h3><div class="small">Live accepted XRPL credentials</div><div class="qr"><canvas id="qr"></canvas></div><div id="passUrl" class="small mono" style="word-break:break-all"></div></div><div class="qrbox"><h3>Onboarding Complete</h3><div id="onboardQRStatus" class="small">Complete all required items to activate.</div><div class="qr"><canvas id="onboardQR"></canvas></div><div id="onboardUrl" class="small mono" style="word-break:break-all"></div></div></div></div></div></div><div class="mf"><button class="sec xpass">Close</button></div></dialog>
+
+
+<dialog id="shareV7">
+<div class="mh"><b>Share Professional Passport</b><button class="sec xsharev7">✕</button></div>
+<div class="mb">
+  <div class="catalog-grid">
+    <div><label>Organization</label><select id="shareOrgV9"><option>Boston Healthcare System</option><option>California Rapid Staffing</option><option>General Authorized Organization</option></select></div>
+    <div><label>Assignment</label><select id="shareAssignmentV9"><option value="boston">Boston Travel ICU</option><option value="ca-strike">California Strike ICU</option><option value="">General Passport Share</option></select></div>
+  </div>
+  <div class="small" style="margin:12px 0 8px"><b>Recommended minimum necessary assertions</b> — review before approval.</div>
+  <div id="shareV7Options" class="share-options"></div>
+  <label>Access duration</label>
+  <select id="shareV7Duration"><option>One Time</option><option>24 Hours</option><option>7 Days</option><option>30 Days</option><option>Until Assignment Starts</option><option selected>Through Assignment End</option><option>Custom Date</option><option>Until I Revoke Access</option></select>
+  <div id="customShareDateWrap" class="hidden"><label>Custom access expiration</label><input id="customShareDateV9" type="date"></div>
+  <button class="pri" id="generateV7Share" style="margin-top:12px;width:100%">Approve & Generate Secure Share</button>
+  <div id="shareV7Result" class="hidden" style="margin-top:14px">
+    <div id="shareV7Link" class="share-link-box"></div>
+    <div class="qr"><canvas id="shareV7QR"></canvas></div>
+    <div class="small">Sensitive source documents are not shared. The QR uses an opaque access reference and contains no SSN, DOB, health details, or wallet addresses.</div>
+  </div>
+</div>
+</dialog>
+
+
+<dialog id="extensionDlg">
+<div class="mh"><b>Passport Access Extension</b><button class="sec xextension">✕</button></div>
+<div class="mb"><div id="extensionText"></div></div>
+<div class="mf"><button class="sec" id="declineExtensionV9">Decline</button><button class="pri" id="approveExtensionV9">Approve Extension</button></div>
+</dialog>
+
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+const $=x=>document.getElementById(x),WS='wss://s.devnet.rippletest.net:51233/',EX='https://devnet.xrpl.org',SK='nursecredx_v2',WK='nursecredx_wallets_v2',AF=65536;
+let creds=[],filter='all',verifyId=null;
+const requirements=[
+['California RN License','RN_CA_ACTIVE','Licenses & Certifications',true,false,'California BRN / Nursys','2028-04-30'],['BLS','CERT_BLS','Licenses & Certifications',true,false,'AHA / certification issuer','2027-11-12'],['ACLS','CERT_ACLS','Licenses & Certifications',true,false,'AHA / certification issuer','2027-02-18'],['NIHSS','CERT_NIHSS','Licenses & Certifications',true,false,'Certification issuer','2027-06-01'],['TB Screening','HEALTH_TB_CURRENT','Health & Immunizations',true,true,'Occupational health / lab','2027-09-01'],['Influenza Vaccine','HEALTH_FLU_CURRENT','Health & Immunizations',true,true,'Occupational health / provider','2027-09-30'],['Physical Exam','HEALTH_PHYSICAL_CURRENT','Health & Immunizations',true,true,'Occupational health provider','2027-08-15'],['N95 Fit Test','HEALTH_FIT_TEST','Health & Immunizations',true,true,'Occupational health / employer','2027-01-05'],['Drug Screen','SCREEN_DRUG_CURRENT','Screening & Employment',true,true,'Background screening vendor','2027-10-01'],['Background Check','SCREEN_BACKGROUND_CURRENT','Screening & Employment',true,true,'Background screening vendor','2027-10-01'],['ICU Experience','EMP_ICU_VERIFIED','Screening & Employment',true,false,'Employer / HR verification',''],['Clinical Hours','CLINICAL_HOURS_VERIFIED','Clinical Requirements',true,false,'School / employer verification',''],['Education Verification','EDU_BSN','Clinical Requirements',false,false,'School / registrar','']
+];
+
+
+const V9_ACCESS='nursecredx_v9_access',V9_PROFILE='nursecredx_v9_profile';
+const CATALOG=[
+ {category:'RN Licenses / Privileges',type:'RN_LICENSE',name:'Registered Nurse License',jurisdiction:true,issuer:true,validity:'ISSUER_EXPIRATION',verify:'PRIMARY_SOURCE',monitor:true,sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL',proof:'OPTIONAL'},
+ {category:'RN Licenses / Privileges',type:'NLC_PRIVILEGE',name:'Nurse Licensure Compact Privilege',jurisdiction:true,issuer:true,validity:'CONTINUOUS_MONITORING',verify:'PRIMARY_SOURCE',monitor:true,sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL',proof:'OPTIONAL'},
+ {category:'RN Licenses / Privileges',type:'TEMP_RN_LICENSE',name:'Temporary RN License',jurisdiction:true,issuer:true,validity:'ISSUER_EXPIRATION',verify:'PRIMARY_SOURCE',monitor:true,sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL',proof:'OPTIONAL'},
+ {category:'Core Life Support',type:'CERT_BLS',name:'BLS',issuer:true,validity:'ISSUER_EXPIRATION',verify:'ISSUER_VALIDATED',months:24,sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL'},
+ {category:'Core Life Support',type:'CERT_ACLS',name:'ACLS',issuer:true,validity:'ISSUER_EXPIRATION',verify:'ISSUER_VALIDATED',months:24,sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL'},
+ {category:'Core Life Support',type:'CERT_PALS',name:'PALS',issuer:true,validity:'ISSUER_EXPIRATION',verify:'ISSUER_VALIDATED',months:24,sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL'},
+ {category:'Core Life Support',type:'CERT_NRP',name:'NRP',issuer:true,validity:'ISSUER_EXPIRATION',verify:'ISSUER_VALIDATED',sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL'},
+ {category:'Core Life Support',type:'CERT_PEARS',name:'PEARS',issuer:true,validity:'ISSUER_EXPIRATION',verify:'ISSUER_VALIDATED',sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL'},
+ {category:'Critical Care / Emergency / Trauma',type:'CERT_NIHSS',name:'NIHSS',issuer:true,validity:'ANNUAL_REFRESH',verify:'ISSUER_VALIDATED',refreshMonths:12,sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL'},
+ {category:'Critical Care / Emergency / Trauma',type:'CERT_CCRN',name:'CCRN',issuer:true,validity:'ISSUER_EXPIRATION',verify:'ISSUER_VALIDATED',sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL'},
+ {category:'Critical Care / Emergency / Trauma',type:'CERT_TNCC',name:'TNCC',issuer:true,validity:'ISSUER_EXPIRATION',verify:'ISSUER_VALIDATED',sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL'},
+ {category:'Critical Care / Emergency / Trauma',type:'CERT_ENPC',name:'ENPC',issuer:true,validity:'ISSUER_EXPIRATION',verify:'ISSUER_VALIDATED',sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL'},
+ {category:'RN Specialty Certifications',type:'CERT_CMSRN',name:'CMSRN',issuer:true,validity:'ISSUER_EXPIRATION',verify:'ISSUER_VALIDATED',sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL'},
+ {category:'RN Specialty Certifications',type:'CERT_CNOR',name:'CNOR',issuer:true,validity:'ISSUER_EXPIRATION',verify:'ISSUER_VALIDATED',sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL'},
+ {category:'Education',type:'EDU_ADN',name:'ADN / ASN',issuer:true,validity:'PERSISTENT',verify:'ISSUER_VALIDATED',sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL'},
+ {category:'Education',type:'EDU_BSN',name:'BSN',issuer:true,validity:'PERSISTENT',verify:'ISSUER_VALIDATED',sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL'},
+ {category:'Education',type:'EDU_MSN',name:'MSN',issuer:true,validity:'PERSISTENT',verify:'ISSUER_VALIDATED',sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'ADDITIONAL_QUALIFICATION'},
+ {category:'Education',type:'EDU_DNP',name:'DNP',issuer:true,validity:'PERSISTENT',verify:'ISSUER_VALIDATED',sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'ADDITIONAL_QUALIFICATION'},
+ {category:'Employment / Experience',type:'EMP_CURRENT',name:'Current Employer Verification',issuer:true,validity:'PERSISTENT',verify:'EMPLOYER_VERIFIED',sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL'},
+ {category:'Employment / Experience',type:'EMP_ICU_VERIFIED',name:'ICU Experience',issuer:true,validity:'PERSISTENT',verify:'EMPLOYER_VERIFIED',sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL'},
+ {category:'Employment / Experience',type:'EMP_TRAVEL_RN',name:'Travel RN Experience',issuer:true,validity:'PERSISTENT',verify:'EMPLOYER_VERIFIED',sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL'},
+ {category:'Clinical Skills / Competencies',type:'SKILL_ICU_CHECKLIST',name:'ICU Skills Checklist',validity:'ANNUAL_REFRESH',verify:'DOCUMENT_REVIEW',refreshMonths:12,sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL'},
+ {category:'Clinical Skills / Competencies',type:'SKILL_CRRT',name:'CRRT Competency',validity:'ANNUAL_REFRESH',verify:'EMPLOYER_VERIFIED',refreshMonths:12,sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL'},
+ {category:'Clinical Skills / Competencies',type:'SKILL_IABP',name:'IABP Competency',validity:'ANNUAL_REFRESH',verify:'EMPLOYER_VERIFIED',refreshMonths:12,sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL'},
+ {category:'Clinical Skills / Competencies',type:'SKILL_IMPELLA',name:'Impella Competency',validity:'ANNUAL_REFRESH',verify:'EMPLOYER_VERIFIED',refreshMonths:12,sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL'},
+ {category:'Clinical Skills / Competencies',type:'SKILL_VENT',name:'Ventilator Management',validity:'ANNUAL_REFRESH',verify:'EMPLOYER_VERIFIED',refreshMonths:12,sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL'},
+ {category:'Clinical Testing',type:'TEST_RHYTHM',name:'Rhythm Interpretation Exam',validity:'ANNUAL_REFRESH',verify:'DOCUMENT_REVIEW',refreshMonths:12,sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL'},
+ {category:'Clinical Testing',type:'TEST_MEDICATION',name:'Medication Exam',validity:'ANNUAL_REFRESH',verify:'DOCUMENT_REVIEW',refreshMonths:12,sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'VERIFIED_CREDENTIAL'},
+ {category:'Occupational Health',type:'HEALTH_PHYSICAL_CURRENT',name:'Physical / Fit for Duty',validity:'ANNUAL_REFRESH',verify:'LAB_VERIFIED',refreshMonths:12,sensitivity:'HIGH',storage:'PRIVATE_OFF_CHAIN',sharing:'COMPLIANCE_ASSERTION_ONLY',proof:'MINIMAL_PROOF'},
+ {category:'Occupational Health',type:'HEALTH_TB_CURRENT',name:'TB Screening / IGRA',validity:'ANNUAL_REFRESH',verify:'LAB_VERIFIED',refreshMonths:12,sensitivity:'HIGH',storage:'PRIVATE_OFF_CHAIN',sharing:'COMPLIANCE_ASSERTION_ONLY',proof:'MINIMAL_PROOF'},
+ {category:'Occupational Health',type:'HEALTH_FIT_TEST',name:'N95 Fit Test',validity:'ANNUAL_REFRESH',verify:'EMPLOYER_VERIFIED',refreshMonths:12,sensitivity:'HIGH',storage:'PRIVATE_OFF_CHAIN',sharing:'COMPLIANCE_ASSERTION_ONLY',proof:'MINIMAL_PROOF'},
+ {category:'Immunization / Immunity',type:'HEALTH_FLU_CURRENT',name:'Influenza Vaccination',validity:'SEASONAL',verify:'DOCUMENT_REVIEW',sensitivity:'HIGH',storage:'PRIVATE_OFF_CHAIN',sharing:'COMPLIANCE_ASSERTION_ONLY',proof:'MINIMAL_PROOF'},
+ {category:'Immunization / Immunity',type:'IMMUNITY_MMR',name:'MMR Immunity',validity:'PERSISTENT',verify:'LAB_VERIFIED',sensitivity:'HIGH',storage:'PRIVATE_OFF_CHAIN',sharing:'COMPLIANCE_ASSERTION_ONLY',proof:'MINIMAL_PROOF'},
+ {category:'Immunization / Immunity',type:'IMMUNITY_VARICELLA',name:'Varicella Immunity',validity:'PERSISTENT',verify:'LAB_VERIFIED',sensitivity:'HIGH',storage:'PRIVATE_OFF_CHAIN',sharing:'COMPLIANCE_ASSERTION_ONLY',proof:'MINIMAL_PROOF'},
+ {category:'Background / Exclusions / Sanctions',type:'SCREEN_BACKGROUND_CURRENT',name:'Criminal Background Check',validity:'ANNUAL_REFRESH',verify:'VENDOR_VERIFIED',refreshMonths:12,sensitivity:'HIGH',storage:'PRIVATE_OFF_CHAIN',sharing:'COMPLIANCE_ASSERTION_ONLY',proof:'MINIMAL_PROOF'},
+ {category:'Background / Exclusions / Sanctions',type:'SCREEN_OIG',name:'OIG Exclusion Check',validity:'CONTINUOUS_MONITORING',verify:'CONTINUOUS_MONITORING',sensitivity:'MEDIUM',storage:'PRIVATE_OFF_CHAIN',sharing:'COMPLIANCE_ASSERTION_ONLY'},
+ {category:'Background / Exclusions / Sanctions',type:'SCREEN_SAM',name:'SAM Exclusion Check',validity:'CONTINUOUS_MONITORING',verify:'CONTINUOUS_MONITORING',sensitivity:'MEDIUM',storage:'PRIVATE_OFF_CHAIN',sharing:'COMPLIANCE_ASSERTION_ONLY'},
+ {category:'Drug / Substance Screening',type:'SCREEN_DRUG_CURRENT',name:'Drug Screen',validity:'ANNUAL_REFRESH',verify:'VENDOR_VERIFIED',refreshMonths:12,sensitivity:'HIGH',storage:'PRIVATE_OFF_CHAIN',sharing:'COMPLIANCE_ASSERTION_ONLY',proof:'MINIMAL_PROOF'},
+ {category:'Identity / Work Authorization',type:'ID_GOVERNMENT',name:'Government Photo ID',validity:'ISSUER_EXPIRATION',verify:'DOCUMENT_REVIEW',sensitivity:'HIGH',storage:'PRIVATE_OFF_CHAIN',sharing:'MINIMUM_NECESSARY'},
+ {category:'Training / Annual Education',type:'TRAIN_HIPAA',name:'HIPAA Training',validity:'ANNUAL_REFRESH',verify:'DOCUMENT_REVIEW',refreshMonths:12,sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'REQUIREMENT_ASSERTION'},
+ {category:'Training / Annual Education',type:'TRAIN_BBP',name:'Bloodborne Pathogens',validity:'ANNUAL_REFRESH',verify:'DOCUMENT_REVIEW',refreshMonths:12,sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'REQUIREMENT_ASSERTION'},
+ {category:'Facility Safety',type:'SAFETY_PPE',name:'PPE / Isolation Precautions',validity:'ANNUAL_REFRESH',verify:'DOCUMENT_REVIEW',refreshMonths:12,sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'REQUIREMENT_ASSERTION'},
+ {category:'References',type:'REF_MANAGER',name:'Manager / Supervisor Reference',validity:'ANNUAL_REFRESH',verify:'EMPLOYER_VERIFIED',refreshMonths:24,sensitivity:'MEDIUM',storage:'PRIVATE_OFF_CHAIN',sharing:'MINIMUM_NECESSARY'},
+ {category:'Professional Documents',type:'DOC_RESUME',name:'Resume',validity:'PERSISTENT',verify:'DOCUMENT_REVIEW',sensitivity:'MEDIUM',storage:'PRIVATE_OFF_CHAIN',sharing:'MINIMUM_NECESSARY'},
+ {category:'CE / Additional RN Qualifications',type:'CE_CERT',name:'CE Certificate / Hours',validity:'PERSISTENT',verify:'DOCUMENT_REVIEW',sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'ADDITIONAL_QUALIFICATION'},
+ {category:'Agency / Facility Specific',type:'FACILITY_MODULE',name:'Facility / Hospital Module',validity:'ANNUAL_REFRESH',verify:'DOCUMENT_REVIEW',sensitivity:'LOW',storage:'PRIVATE_OFF_CHAIN',sharing:'REQUIREMENT_ASSERTION'},
+ {category:'Custom',type:'CUSTOM',name:'Add Custom Credential',validity:'PERSISTENT',verify:'DOCUMENT_REVIEW',sensitivity:'MEDIUM',storage:'PRIVATE_OFF_CHAIN',sharing:'MINIMUM_NECESSARY'}
+];
+function catalogByType(t){return CATALOG.find(x=>x.type===t)||null}
+function v9Categories(){return [...new Set(CATALOG.map(x=>x.category))]}
+function v9Current(c){if(c.primary!=='VERIFIED'||!c.prov?.active)return false;const d=c.official_expiration_date||c.expiration;if(d&&new Date(d+'T23:59:59')<new Date())return false;return true}
+function v9RequirementSatisfied(c){return v9Current(c)}
+function v9ApplyCatalog(c,meta){
+ c.catalog_type=meta.type;c.category=meta.category;c.validity_class=meta.validity;c.verification_method=meta.verify;c.sensitivity=meta.sensitivity||'LOW';c.storage_policy=meta.storage||'PRIVATE_OFF_CHAIN';c.sharing_policy=meta.sharing||'VERIFIED_CREDENTIAL';c.proof_policy=meta.proof||'OPTIONAL';c.continuous_monitoring=!!meta.monitor;c.privateOnly=['COMPLIANCE_ASSERTION_ONLY','MINIMUM_NECESSARY'].includes(c.sharing_policy)&&c.sensitivity==='HIGH';return c
+}
+function v9Access(){try{return JSON.parse(localStorage.getItem(V9_ACCESS)||'[]')}catch{return[]}}
+function v9SaveAccess(a){localStorage.setItem(V9_ACCESS,JSON.stringify(a))}
+function v9Profile(){try{return JSON.parse(localStorage.getItem(V9_PROFILE)||'{}')}catch{return{}}}
+function v9Expiration(duration,assignment,custom){
+ const now=new Date();
+ if(duration==='One Time')return new Date(now.getTime()+60*60*1000).toISOString();
+ if(duration==='24 Hours')return new Date(now.getTime()+24*60*60*1000).toISOString();
+ if(duration==='7 Days')return new Date(now.getTime()+7*86400000).toISOString();
+ if(duration==='30 Days')return new Date(now.getTime()+30*86400000).toISOString();
+ if(duration==='Until Assignment Starts'&&assignment)return assignment.start+'T23:59:59';
+ if(duration==='Through Assignment End'&&assignment)return assignment.end+'T23:59:59';
+ if(duration==='Custom Date'&&custom)return custom+'T23:59:59';
+ if(duration==='Until I Revoke Access')return null;
+ return new Date(now.getTime()+7*86400000).toISOString()
+}
+function v9GrantStatus(g){
+ if(g.status==='REVOKED')return 'REVOKED';
+ if(g.extensionRequest?.status==='PENDING')return g.status||'ACTIVE';
+ if(g.expiresAt&&new Date(g.expiresAt)<new Date())return 'EXPIRED';
+ return g.status||'ACTIVE'
+}
+function v9ShareLabel(c){
+ if(c.sharing_policy==='COMPLIANCE_ASSERTION_ONLY'){
+  if(c.type.includes('DRUG'))return 'Drug Screen Requirement Satisfied';
+  if(c.type.includes('BACKGROUND'))return 'Background Requirement Satisfied';
+  if(c.type.includes('PHYSICAL'))return 'Physical Requirement Satisfied';
+  if(c.type.includes('TB'))return 'TB Requirement Satisfied';
+  if(c.type.includes('FLU')||c.type.includes('IMMUNITY'))return 'Immunization Requirement Satisfied';
+ }
+ return c.name
+}
+
+const V81_EVENTS='nursecredx_v81_events';
+const V81_ASSIGNMENTS=[
+{id:'boston',name:'Boston Travel ICU',start:'2026-12-01',end:'2027-03-01',reqs:[{label:'Massachusetts RN License',type:'RN_LICENSE',jurisdiction:'US_MA'},{label:'BLS',type:'CERT_BLS'},{label:'ACLS',type:'CERT_ACLS'},{label:'NIHSS',type:'CERT_NIHSS'},{label:'ICU Experience',type:'EMP_ICU_VERIFIED'},{label:'Physical Exam',type:'HEALTH_PHYSICAL_CURRENT'},{label:'N95 Fit Test',type:'HEALTH_FIT_TEST'},{label:'Drug Screen',type:'SCREEN_DRUG_CURRENT'},{label:'Background Check',type:'SCREEN_BACKGROUND_CURRENT'},{label:'TB Screening',type:'HEALTH_TB_CURRENT'},{label:'Influenza Vaccine',type:'HEALTH_FLU_CURRENT'},{label:'Clinical Hours',type:'CLINICAL_HOURS_VERIFIED'}]},
+{id:'ca-strike',name:'California Strike ICU',start:'2026-10-15',end:'2026-11-30',reqs:[{label:'California RN License',type:'RN_CA_ACTIVE'},{label:'BLS',type:'CERT_BLS'},{label:'ACLS',type:'CERT_ACLS'},{label:'ICU Experience',type:'EMP_ICU_VERIFIED'},{label:'Background Check',type:'SCREEN_BACKGROUND_CURRENT'},{label:'Drug Screen',type:'SCREEN_DRUG_CURRENT'},{label:'Physical Exam',type:'HEALTH_PHYSICAL_CURRENT'},{label:'N95 Fit Test',type:'HEALTH_FIT_TEST'},{label:'Clinical Hours',type:'CLINICAL_HOURS_VERIFIED'}]}];
+function v81Events(){try{return JSON.parse(localStorage.getItem(V81_EVENTS)||'[]')}catch{return[]}}
+function v81Log(type,id=null,extra={}){const e=v81Events();e.push({event_id:'e'+Date.now()+Math.random().toString(16).slice(2),event_type:type,credential_id:id,timestamp:extra.timestamp||new Date().toISOString(),actor_type:extra.actor_type||'SYSTEM',verification_method:extra.verification_method||null,result:extra.result||null,duration_ms:extra.duration_ms||null,manual_intervention:!!extra.manual_intervention});localStorage.setItem(V81_EVENTS,JSON.stringify(e))}
+function v81Normalize(c){c.uploaded=c.uploaded??!!c.file;c.jurisdiction=c.jurisdiction||(c.type==='RN_CA_ACTIVE'?'US_CA':'');c.official_expiration_date=c.official_expiration_date||c.expiration||'';c.recommended_refresh_date=c.recommended_refresh_date||'';c.verification_method=c.verification_method||c.prov?.method||'';c.last_verified_date=c.last_verified_date||(c.prov?.verifiedAt?c.prov.verifiedAt.slice(0,10):'');c.last_monitored_date=c.last_monitored_date||(c.prov?.lastMonitored?c.prov.lastMonitored.slice(0,10):'');return c}
+function v81Type(kind,jur){if(kind==='RN_LICENSE'){if(jur==='US_CA')return'RN_CA_ACTIVE';if(jur==='NLC')return'RN_COMPACT_ACTIVE';return'RN_LICENSE'}return kind}
+function v81Name(kind,jur){const m={CERT_BLS:'BLS',CERT_ACLS:'ACLS',CERT_NIHSS:'NIHSS',CERT_CCRN:'CCRN',EDU_BSN:'BSN Education',EMP_ICU_VERIFIED:'ICU Experience'};if(kind==='RN_LICENSE'){const j={US_CA:'California',US_MA:'Massachusetts',US_TX:'Texas',US_FL:'Florida',NLC:'Compact'}[jur]||'';return(j?j+' ':'')+'RN License'}return m[kind]||$('nm').value.trim()||'Credential'}
+function v81Match(req,c){if(!v9Current(c))return false;if(req.type==='RN_LICENSE')return (c.type==='RN_LICENSE'||String(c.type).startsWith('RN_'))&&c.jurisdiction===req.jurisdiction;return c.type===req.type}
+function v81Assignment(a){let ok=0,missing=[];a.reqs.forEach(r=>{const c=creds.find(x=>v81Match(r,x));if(!c){missing.push(r.label);return}const exp=c.official_expiration_date||c.expiration;if(exp&&a.end&&new Date(exp)<new Date(a.end)){missing.push(r.label+' — renew before submission');return}ok++});return{ok,total:a.reqs.length,missing,ready:missing.length===0}}
+function v81Median(a){if(!a.length)return null;a=[...a].sort((x,y)=>x-y);const m=Math.floor(a.length/2);return a.length%2?a[m]:(a[m-1]+a[m])/2}
+function v81Durations(){const ev=v81Events(),g={};ev.forEach(x=>{if(x.credential_id)(g[x.credential_id]??=[]).push(x)});const d=[];Object.values(g).forEach(es=>{const s=es.find(x=>x.event_type==='VERIFICATION_STARTED'),f=es.find(x=>x.event_type==='VERIFICATION_SUCCEEDED');if(s&&f)d.push(new Date(f.timestamp)-new Date(s.timestamp))});return d}
+function v81Fmt(ms){if(ms==null)return'—';const s=Math.round(ms/1000);return s<60?s+'s':Math.floor(s/60)+'m '+String(s%60).padStart(2,'0')+'s'}
+function v81ShowRole(role){$('landing').classList.add('hidden');$('app').classList.add('hidden');$('organizationWorkspace').classList.remove('active');$('verificationWorkspace').classList.remove('active');if(role==='clinician'){$('app').classList.remove('hidden');render()}if(role==='organization'){$('organizationWorkspace').classList.add('active');v81RenderRoles()}if(role==='verification'){$('verificationWorkspace').classList.add('active');v81RenderRoles()}}
+function v81RolePicker(){$('app').classList.add('hidden');$('organizationWorkspace').classList.remove('active');$('verificationWorkspace').classList.remove('active');$('landing').classList.remove('hidden');window.scrollTo(0,0)}
+function v81Tabs(btnClass,panelClass,target){document.querySelectorAll('.'+panelClass).forEach(x=>x.classList.toggle('hidden',x.id!==target));document.querySelectorAll('.'+btnClass).forEach(x=>x.classList.toggle('active',x.dataset.target===target))}
+function v81EnsureDemo(){/* V9: no state changes during rendering. Demo state is seeded only by reset/initialization. */}
+function v81RenderRoles(){if(!creds.length)return;const b=v81Assignment(V81_ASSIGNMENTS[0]),ev=v81Events(),pending=creds.filter(c=>['UNVERIFIED','VERIFYING'].includes(c.primary)),med=v81Median(v81Durations());const exp=creds.filter(c=>{const d=c.official_expiration_date||c.expiration;if(!d)return false;return Math.ceil((new Date(d)-new Date())/86400000)<=90}).length;
+if($('orgReadyV81'))$('orgReadyV81').textContent=b.ready?1:0;if($('orgMissingOneV81'))$('orgMissingOneV81').textContent=b.missing.length===1?1:0;if($('orgAwaitV81'))$('orgAwaitV81').textContent=pending.length;if($('orgExpV81'))$('orgExpV81').textContent=exp;if($('orgMedV81'))$('orgMedV81').textContent=v81Fmt(med);if($('orgReuseV81')){const shares=ev.filter(e=>e.event_type==='SHARE_CREATED').length,reuse=ev.filter(e=>e.event_type==='CREDENTIAL_REUSED').length;$('orgReuseV81').textContent=shares?Math.round(reuse/Math.max(1,shares)*100)+'%':'—'};
+if($('orgSummaryV81'))$('orgSummaryV81').innerHTML=`<div class="row-v81"><div><b>Alex Morgan, RN, BSN, CCRN</b><div class="small">ICU · Boston Travel ICU</div></div><div><b>${b.ok}/${b.total} Ready</b><div class="small">${b.ready?'Assignment Ready':'Missing: '+b.missing.join(', ')}</div></div></div><div class="row-v81"><div><b>Jamie Smith</b><div class="small">ICU</div></div><b>11/12 Ready</b></div><div class="row-v81"><div><b>Taylor Reed</b><div class="small">PCU</div></div><b>8/12 Ready</b></div>`;
+if($('orgBostonV81')){const grants=v9Access().filter(g=>g.assignmentId==='boston'&&v9GrantStatus(g)==='ACTIVE');const g=grants[grants.length-1];$('orgBostonV81').innerHTML=`<div class="${b.ready?'good-v81':'alert-v81'}"><b>${b.ready?'12/12 Requirements Satisfied — Assignment Ready':'11/12 Ready'}</b><div style="margin-top:4px">${b.ready?'All mandatory requirements satisfied.':'Missing: '+b.missing.join(', ')}</div></div><div class="row-v81" style="margin-top:10px"><div><b>Passport Access</b><div class="small">${g?'ACTIVE · '+(g.expiresAt?new Date(g.expiresAt).toLocaleDateString():'Until revoked'):'No active access grant'}</div></div>${g?`<button class="sec requestExtensionV9" data-id="${g.id}">Request Access Extension</button>`:''}</div>`;setTimeout(()=>document.querySelectorAll('.requestExtensionV9').forEach(x=>x.onclick=()=>v9RequestExtension(x.dataset.id)),0)};
+if($('orgCandidatesBodyV81'))$('orgCandidatesBodyV81').innerHTML=`<table class="v81-table"><tr><th>Candidate</th><th>Specialty</th><th>Boston ICU</th><th>Status</th></tr><tr><td>Alex Morgan</td><td>ICU</td><td>${b.ok}/${b.total}</td><td>${b.ready?'Assignment Ready':'Missing '+b.missing.length}</td></tr><tr><td>Jamie Smith</td><td>ICU</td><td>11/12</td><td>Missing 1</td></tr><tr><td>Taylor Reed</td><td>PCU</td><td>8/12</td><td>Needs Attention</td></tr></table>`;
+if($('orgAssignmentsBodyV81'))$('orgAssignmentsBodyV81').innerHTML=V81_ASSIGNMENTS.map(a=>{const r=v81Assignment(a);return`<div class="row-v81"><div><b>${a.name}</b><div class="small">${a.start} → ${a.end}</div></div><div><b>${r.ok}/${r.total}</b><div class="small">${r.ready?'Ready':r.missing.length+' missing'}</div></div></div>`}).join('');
+if($('orgRequirementsBodyV81'))$('orgRequirementsBodyV81').innerHTML=['Travel ICU RN','Strike ICU RN','Rapid Response RN','Per-Diem RN'].map(n=>`<div class="row-v81"><div><b>${n}</b><div class="small">Reusable demo requirement template</div></div><button class="sec">View</button></div>`).join('');
+if($('orgAnalyticsBodyV81'))$('orgAnalyticsBodyV81').innerHTML=`<table class="v81-table"><tr><td>Median verification time</td><td><b>${v81Fmt(med)}</b></td></tr><tr><td>Audit events</td><td><b>${ev.length}</b></td></tr><tr><td>Credential reuse events</td><td><b>${ev.filter(e=>e.event_type==='CREDENTIAL_REUSED').length}</b></td></tr></table><p class="small">DEMO DATA — NOT PRODUCTION RESULTS.</p>`;
+const success=ev.filter(e=>e.event_type==='VERIFICATION_SUCCEEDED').length,failed=ev.filter(e=>e.event_type==='VERIFICATION_FAILED').length,manual=ev.filter(e=>e.manual_intervention).length;if($('verPendingV81'))$('verPendingV81').textContent=pending.length;if($('verSuccessV81'))$('verSuccessV81').textContent=success;if($('verManualV81'))$('verManualV81').textContent=manual;if($('verFailedV81'))$('verFailedV81').textContent=failed;if($('verMedianV81'))$('verMedianV81').textContent=v81Fmt(med);
+const q=pending.length?pending.map(c=>`<div class="row-v81"><div><b>${ec(c.name)}</b><div class="small">${ec(c.type)}${c.jurisdiction?' · '+ec(c.jurisdiction):''}</div></div><button class="pri v81Verify" data-id="${c.id}">Run Simulated Primary-Source Check</button></div>`).join(''):'<div class="small">Queue is clear.</div>';if($('verifyQueuePreviewV81'))$('verifyQueuePreviewV81').innerHTML=q;if($('verifyQueueBodyV81'))$('verifyQueueBodyV81').innerHTML=q;document.querySelectorAll('.v81Verify').forEach(b=>b.onclick=()=>v81Verify(+b.dataset.id));
+if($('verifyAuditBodyV81'))$('verifyAuditBodyV81').innerHTML=ev.slice().reverse().slice(0,25).map(e=>`<div class="row-v81"><b>${e.event_type}</b><div class="small">${new Date(e.timestamp).toLocaleString()} · ${e.actor_type}</div></div>`).join('')||'<div class="small">No events yet.</div>';
+if($('verifyAnalyticsBodyV81'))$('verifyAnalyticsBodyV81').innerHTML=`<table class="v81-table"><tr><td>Verification successes</td><td>${success}</td></tr><tr><td>Median verification time</td><td>${v81Fmt(med)}</td></tr><tr><td>Manual reviews</td><td>${manual}</td></tr><tr><td>Failed attempts</td><td>${failed}</td></tr><tr><td>Sample size</td><td>${ev.length} events</td></tr></table><p class="small">DEMO DATA — NOT PRODUCTION RESULTS. No accuracy claim is made without ground-truth review.</p>`;
+if($('verifyProofsBodyV81'))$('verifyProofsBodyV81').innerHTML=creds.filter(c=>c.chain!=='NOT ISSUED').map(c=>`<div class="row-v81"><div><b>${ec(c.name)}</b><div class="small">${ec(userChain(c))}</div></div><button class="sec details" data-id="${c.id}">Open</button></div>`).join('')||'<div class="small">No advanced proof records yet.</div>';document.querySelectorAll('.details').forEach(b=>b.onclick=()=>showProof(+b.dataset.id))}
+function v81Verify(id){const c=creds.find(x=>x.id===id);if(!c)return;if((c.type==='RN_LICENSE'||String(c.type).startsWith('RN_'))&&!c.jurisdiction){v81Log('VERIFICATION_FAILED',id,{actor_type:'VERIFIER',result:'JURISDICTION_MISMATCH'});alert('Jurisdiction mismatch: choose the license jurisdiction first.');return}const finish=new Date(),start=new Date(finish.getTime()-134000);v81Log('VERIFICATION_STARTED',id,{timestamp:start.toISOString(),actor_type:'VERIFIER',verification_method:'PRIMARY_SOURCE'});c.primary='VERIFIED';c.prov=c.prov||{};c.prov.active=true;c.prov.source=c.jurisdiction==='US_MA'?'Massachusetts Board of Registration in Nursing — DEMO':'Demo primary source';c.prov.method='PRIMARY_SOURCE';c.prov.verifier='NurseCredX Verification Console — DEMO';c.prov.verifiedAt=finish.toISOString();c.prov.lastMonitored=finish.toISOString();c.verification_method='PRIMARY_SOURCE';c.last_verified_date=finish.toISOString().slice(0,10);c.last_monitored_date=finish.toISOString().slice(0,10);v81Log('SOURCE_CHECK_COMPLETED',id,{actor_type:'VERIFIER',verification_method:'PRIMARY_SOURCE',result:'DEMO_SUCCESS',duration_ms:134000});v81Log('VERIFICATION_SUCCEEDED',id,{timestamp:finish.toISOString(),actor_type:'VERIFIER',verification_method:'PRIMARY_SOURCE',result:'DEMO_SUCCESS',duration_ms:134000});const b=v81Assignment(V81_ASSIGNMENTS[0]);v81Log('ASSIGNMENT_CHECKED',id,{actor_type:'SYSTEM',result:b.ok+'/'+b.total});if(b.ready)v81Log('ASSIGNMENT_READY',id,{actor_type:'SYSTEM',result:'BOSTON_READY'});save();render();v81RenderRoles();alert(c.name+' is now PRIMARY SOURCE VERIFIED — DEMO. Boston ICU readiness has been recalculated.')}
+
+
+
+function v9PopulateCatalog(){
+ const cat=$('catalogCategory'),cred=$('catalogCredential');if(!cat||!cred)return;
+ cat.innerHTML=v9Categories().map(x=>`<option>${ec(x)}</option>`).join('');
+ function fill(){const arr=CATALOG.filter(x=>x.category===cat.value);cred.innerHTML=arr.map(x=>`<option value="${ec(x.type)}">${ec(x.name)}</option>`).join('');v9CatalogSelection()}
+ cat.onchange=fill;cred.onchange=v9CatalogSelection;fill()
+}
+function v9CatalogSelection(){
+ const meta=catalogByType($('catalogCredential').value);if(!meta)return;
+ $('customCredentialWrap').classList.toggle('hidden',meta.type!=='CUSTOM');
+ $('jurisdictionWrap').classList.toggle('hidden',!meta.jurisdiction);
+ $('issuerWrap').classList.toggle('hidden',!meta.issuer);
+}
+function v9SearchCatalog(q){
+ const box=$('catalogSearchResults');if(!q.trim()){box.classList.add('hidden');box.innerHTML='';return}
+ const s=q.toLowerCase(),arr=CATALOG.filter(x=>(x.name+' '+x.category).toLowerCase().includes(s)).slice(0,20);
+ box.innerHTML=arr.map(x=>`<div class="search-result-v9" data-type="${ec(x.type)}"><b>${ec(x.name)}</b><div class="small">${ec(x.category)}</div></div>`).join('')||'<div class="small" style="padding:10px">No catalog match — use Add Custom Credential.</div>';box.classList.remove('hidden');
+ box.querySelectorAll('.search-result-v9').forEach(r=>r.onclick=()=>{const meta=catalogByType(r.dataset.type);$('catalogCategory').value=meta.category;$('catalogCredential').innerHTML=CATALOG.filter(x=>x.category===meta.category).map(x=>`<option value="${ec(x.type)}">${ec(x.name)}</option>`).join('');$('catalogCredential').value=meta.type;$('catalogSearch').value=meta.name;box.classList.add('hidden');v9CatalogSelection()})
+}
+function v9OpenAdd(prefill=null){
+ $('add').showModal();v9PopulateCatalog();
+ if(prefill){$('catalogCategory').value=prefill.category||'RN Licenses / Privileges';$('catalogCategory').dispatchEvent(new Event('change'));$('catalogCredential').value=prefill.type||'RN_LICENSE';$('jurisdictionV9').value=prefill.jurisdiction||'';if(prefill.issuer)$('issuerV9').value=prefill.issuer;v9CatalogSelection()}
+}
+
+function v9SeedGoldenDemo(){
+ const now=new Date().toISOString();
+ creds=creds.map(v81Normalize);
+ const verifiedTypes=['RN_CA_ACTIVE','CERT_BLS','CERT_ACLS','CERT_NIHSS','HEALTH_TB_CURRENT','HEALTH_FLU_CURRENT','HEALTH_PHYSICAL_CURRENT','HEALTH_FIT_TEST','SCREEN_DRUG_CURRENT','SCREEN_BACKGROUND_CURRENT','EMP_ICU_VERIFIED','CLINICAL_HOURS_VERIFIED'];
+ verifiedTypes.forEach(t=>{const c=creds.find(x=>x.type===t);if(c){c.primary='VERIFIED';c.prov=c.prov||{};c.prov.active=true;c.prov.source=c.prov.source||'DEMO verified source';c.prov.method=c.prov.method||'Demo verification';c.prov.verifier=c.prov.verifier||'Veridun Demo Seed';c.prov.verifiedAt=c.prov.verifiedAt||now;c.prov.lastMonitored=c.prov.lastMonitored||now;c.last_verified_date=c.prov.verifiedAt.slice(0,10);c.last_monitored_date=c.prov.lastMonitored.slice(0,10);const m=catalogByType(c.type);if(m)v9ApplyCatalog(c,m)}})
+ // Ensure no Massachusetts license at reset so Boston starts at 11/12.
+ creds=creds.filter(c=>!(c.type==='RN_LICENSE'&&c.jurisdiction==='US_MA'));
+ localStorage.setItem(V81_EVENTS,'[]');localStorage.setItem(V9_ACCESS,'[]');save()
+}
+
+function initNewcomer(force=false){
+ if(!force){try{creds=JSON.parse(localStorage.getItem(SK)||'[]')}catch{creds=[]}if(creds.length){creds=creds.map(v81Normalize);return}}
+ creds=requirements.map((r,i)=>v81Normalize({id:Date.now()+i,name:r[0],type:r[1],section:r[2],required:r[3],privateOnly:r[4],primary:'UNVERIFIED',chain:'NOT ISSUED',expiration:r[6],file:'',prov:{source:r[5],method:'',verifier:'',verifiedAt:'',active:false,lastMonitored:''}}));
+ creds.forEach(c=>{const meta=catalogByType(c.type);if(meta)v9ApplyCatalog(c,meta)});
+ v9SeedGoldenDemo()
+}
+function save(){localStorage.setItem(SK,JSON.stringify(creds))}function ec(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}function cls(s){return String(s).replaceAll(' ','')}function fd(d){return d?new Date(d+'T00:00:00').toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}):'—'}function eligible(c){return c.primary==='VERIFIED'&&!c.privateOnly&&c.chain==='NOT ISSUED'}function reqSatisfied(c){if(!c.required)return true;return v9RequirementSatisfied(c)}function onboarding(){const req=creds.filter(c=>c.required),ok=req.filter(reqSatisfied).length,pct=req.length?Math.round(ok/req.length*100):0;return{req,ok,pct,ready:req.length>0&&ok===req.length}}function userChain(c){if(c.privateOnly)return 'PROOF OPTIONAL';if(c.chain==='ACCEPTED')return 'CREDENTIAL SECURED';if(c.chain==='XRPL ISSUED')return 'SECURING';if(c.chain==='REVOKED')return 'REVOKED';return 'NOT SECURED'}
+function userChainClass(c){if(c.privateOnly)return 'PRIVATE';if(c.chain==='ACCEPTED')return 'ACCEPTED';if(c.chain==='XRPL ISSUED')return 'PENDING';if(c.chain==='REVOKED')return 'REVOKED';return 'NOTISSUED'}
+function catFor(c){const n=(c.name+' '+c.type).toUpperCase();if(n.includes('RN_')||n.includes('LICENSE'))return 'Licenses';if(n.includes('CERT_')||n.includes('BLS')||n.includes('ACLS')||n.includes('NIHSS')||n.includes('CCRN'))return 'Certifications';if(n.includes('EDU_')||n.includes('EDUCATION'))return 'Education';if(n.includes('EMP_')||n.includes('EMPLOYMENT'))return 'Employment & HR';if(n.includes('HEALTH_')||n.includes('TB')||n.includes('PHYSICAL')||n.includes('FIT TEST')||n.includes('INFLUENZA'))return 'Employee Health';if(n.includes('SCREEN_')||n.includes('BACKGROUND')||n.includes('DRUG'))return 'Background & Screening';if(n.includes('CLINICAL')||n.includes('SKILL_')||n.includes('COMPETENCY'))return 'Clinical Qualifications';return 'Submitted Credentials'}
+function setBusy(s){$('busy').textContent=s||''}
+function render(){creds=creds.map(v81Normalize);const ob=onboarding();$('onboardPct').textContent=ob.pct+'%';$('vcount').textContent=creds.filter(c=>c.primary==='VERIFIED').length;$('acount').textContent=creds.filter(c=>c.chain==='ACCEPTED').length;$('ncount').textContent=creds.filter(c=>['UNVERIFIED','VERIFYING'].includes(c.primary)||c.chain==='SECURING').length;$('onboardBar').style.width=ob.pct+'%';$('onboardSummaryText').textContent=`${ob.ok} of ${ob.req.length} required items satisfied`;$('readyBadge').textContent=ob.ready?'ONBOARDING READY':'IN PROGRESS';$('readyBadge').className='badge '+(ob.ready?'READY':'PENDING');let a=filter==='all'?creds:creds.filter(c=>c.section===filter);$('empty').classList.toggle('hidden',a.length>0);$('tbl').classList.toggle('hidden',!a.length);$('rows').innerHTML=a.map(c=>{let z=`<button class="mini details" data-id="${c.id}">Details</button>`;if(c.primary==='UNVERIFIED')z+=`<button class="mini verify" data-id="${c.id}">Submit for Verification</button>`;if(c.primary==='VERIFYING')z+=`<button class="mini" disabled>Verification in Progress</button>`;if(eligible(c))z+=`<button class="mini chainbtn issue" data-id="${c.id}">Secure Credential</button>`;if(c.chain==='SECURING')z+=`<button class="mini goodbtn accept" data-id="${c.id}">Accept</button>`;if(['SECURING','ACCEPTED'].includes(c.chain))z+=`<button class="mini showproof" data-id="${c.id}">XRPL Proof</button>`;z+=`<button class="mini del" data-id="${c.id}">Delete</button>`;let prov=c.prov?.verifiedAt?`${ec(c.prov.source)}<div class="source">${ec(c.prov.method)} · ${new Date(c.prov.verifiedAt).toLocaleDateString()}</div>`:'Not yet verified';return `<tr><td><b>${ec(v9ShareLabel(c))}</b><div class="small">${c.jurisdiction?ec(c.jurisdiction):''}</div></td><td>${ec(c.category||catFor(c))}</td><td><span class="badge ${cls(c.primary)}">${ec(c.primary)}</span></td><td><span class="badge ${v9Current(c)?'VERIFIED':'PENDING'}">${v9Current(c)?'CURRENT':ec(v9RenewalState(c))}</span></td><td><span class="badge ${userChainClass(c)}">${ec(userChain(c))}</span></td><td>${fd(c.official_expiration_date||c.expiration)}</td><td>${prov}</td><td><div class="rowact">${z}</div></td></tr>`}).join('');document.querySelectorAll('.verify').forEach(b=>b.onclick=()=>openVerify(+b.dataset.id));document.querySelectorAll('.issue').forEach(b=>b.onclick=()=>issue(+b.dataset.id));document.querySelectorAll('.accept').forEach(b=>b.onclick=()=>accept(+b.dataset.id));document.querySelectorAll('.showproof,.details').forEach(b=>b.onclick=()=>showProof(+b.dataset.id));document.querySelectorAll('.del').forEach(b=>b.onclick=()=>{creds=creds.filter(c=>c.id!=b.dataset.id);save();render()});renderV7Views()}
+
+function v7Readiness(){
+ const req=creds.filter(c=>c.required),ok=req.filter(c=>c.primary==='VERIFIED'&&c.prov?.active).length;
+ return req.length?Math.round(ok/req.length*100):0
+}
+function showV7View(id){
+ document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));
+ document.querySelectorAll('.v7nav').forEach(b=>b.classList.toggle('active',b.dataset.view===id));
+ window.scrollTo({top:0,behavior:'smooth'});
+ if(['passportView','credentialsView','assignmentsView','tasksView','opportunitiesView','shareAccessView','activityView','profileView'].includes(id))renderV7Views()
+}
+function v7ReqMatch(type){
+ const c=creds.find(x=>x.type===type);return !!(c&&c.primary==='VERIFIED'&&c.prov?.active)
+}
+
+function v9RenewalState(c){
+ const d=c.official_expiration_date||c.expiration;if(!d)return c.validity_class==='PERSISTENT'?'Verified — No Routine Renewal':'Current';
+ const days=Math.ceil((new Date(d+'T23:59:59')-new Date())/86400000);if(days<0)return'Not Current';if(days<=14)return'Urgent Renewal';if(days<=30)return'At Risk for Future Assignments';if(days<=60)return'Renewal Recommended';if(days<=90)return'Renewal Upcoming';return'Current'
+}
+function v9RenderClinicianViews(){
+ const b=v81Assignment(V81_ASSIGNMENTS[0]),ca=v81Assignment(V81_ASSIGNMENTS[1]);
+ if($('v9CredentialList'))$('v9CredentialList').innerHTML=creds.map(c=>`<div class="passport-item-v7"><div><b>${ec(v9ShareLabel(c))}</b><div class="small">${ec(c.category||catFor(c))} · ${ec(c.jurisdiction||'')} ${c.jurisdiction?'· ':''}${ec(v9RenewalState(c))}</div></div><div><span class="badge ${cls(c.primary)}">${ec(c.primary)}</span> <button class="mini details" data-id="${c.id}">View</button></div></div>`).join('');
+ if($('v9AssignmentsList'))$('v9AssignmentsList').innerHTML=V81_ASSIGNMENTS.map(a=>{const r=v81Assignment(a);return `<div class="assignment-card-v9"><div class="assignment-top-v9"><div><h3 style="margin:0">${ec(a.name)}</h3><div class="small">${ec(a.start)} → ${ec(a.end)}</div></div><div class="score-v9">${r.ok}/${r.total}</div></div><div class="${r.ready?'good-v81':'alert-v81'}" style="margin-top:10px"><b>${r.ready?(a.id==='ca-strike'?'DEPLOYMENT READY':'ASSIGNMENT READY'):'Needs Attention'}</b><div style="margin-top:4px">${r.ready?'All mandatory requirements satisfied.':'Missing: '+r.missing.join(', ')}</div></div>${a.id==='boston'&&!r.ready?'<button class="pri completeBostonV9" style="margin-top:10px">Complete Missing Requirement</button>':''}</div>`}).join('');
+ document.querySelectorAll('.completeBostonV9').forEach(b=>b.onclick=()=>v9OpenAdd({category:'RN Licenses / Privileges',type:'RN_LICENSE',jurisdiction:'US_MA',issuer:'Massachusetts Board of Registration in Nursing'}));
+ if($('v7Opp1Score'))$('v7Opp1Score').textContent=`${b.ok}/${b.total}`;
+ if($('v7Opp1Reqs'))$('v7Opp1Reqs').innerHTML=b.missing.length?`<li>Missing: ${ec(b.missing.join(', '))}</li><li>Estimated onboarding work: ${b.missing.length} item${b.missing.length===1?'':'s'}</li>`:'<li>✓ All mandatory requirements satisfied</li>';
+ if($('v7Opp1Action')){$('v7Opp1Action').textContent=b.ready?'Assignment Ready':'Complete Requirement';$('v7Opp1Action').onclick=()=>b.ready?showV7View('assignmentsView'):v9OpenAdd({category:'RN Licenses / Privileges',type:'RN_LICENSE',jurisdiction:'US_MA',issuer:'Massachusetts Board of Registration in Nursing'})}
+ if($('v7Opp2Score'))$('v7Opp2Score').textContent=`${ca.ok}/${ca.total}`;
+ if($('v7Opp2Reqs'))$('v7Opp2Reqs').innerHTML=ca.missing.length?`<li>${ec(ca.missing.join(', '))}</li>`:'<li>✓ Deployment ready</li>';
+ v9RenderAccess();v9RenderActivity();
+ document.querySelectorAll('.details').forEach(btn=>btn.onclick=()=>showProof(+btn.dataset.id));v9RenderClinicianViews();v9RenderTasks()
+}
+function v9TaskBuckets(){
+ const buckets=[
+ ['Required Before Submission',creds.filter(c=>{const missing=V81_ASSIGNMENTS[0].reqs.some(r=>r.type===c.type||r.label===c.name);return missing&&!v9Current(c)})],
+ ['Expiring Within 30 Days',creds.filter(c=>{const d=c.official_expiration_date||c.expiration;if(!d)return false;const days=Math.ceil((new Date(d)-new Date())/86400000);return days>=0&&days<=30})],
+ ['Renewal Recommended',creds.filter(c=>['Renewal Recommended','Renewal Upcoming','At Risk for Future Assignments','Urgent Renewal'].includes(v9RenewalState(c)))],
+ ['Awaiting Verification',creds.filter(c=>c.primary==='VERIFYING')],
+ ['Missing',V81_ASSIGNMENTS[0].reqs.filter(r=>!creds.find(c=>v81Match(r,c))).map((r,i)=>({id:'missing_'+i,name:r.label,missingReq:r}))],
+ ['Complete',creds.filter(v9Current)]
+ ];
+ return buckets
+}
+function v9RenderTasks(){
+ if(!$('v7TaskCategories'))return;
+ $('v7TaskCategories').innerHTML=v9TaskBuckets().map(([name,arr])=>`<div class="task-bucket"><h3>${ec(name)} <span class="small">(${arr.length})</span></h3>${arr.length?arr.map(c=>c.missingReq?`<div class="task-item-v7"><div><b>${ec(c.name)}</b><div class="small">Required for Boston Travel ICU</div></div><button class="mini missingActionV9" data-name="${ec(c.name)}">Add</button></div>`:`<div class="task-item-v7"><div><b>${ec(c.name)}</b><div class="small">${ec(v9RenewalState(c))}${c.official_expiration_date?' · '+fd(c.official_expiration_date):''}</div></div><button class="mini details" data-id="${c.id}">${name.includes('Renew')||name.includes('Expiring')?'Renew':'Open'}</button></div>`).join(''):'<div class="small" style="padding:12px 15px">No items</div>'}</div>`).join('');
+ document.querySelectorAll('.missingActionV9').forEach(b=>b.onclick=()=>{if(b.dataset.name.includes('Massachusetts'))v9OpenAdd({category:'RN Licenses / Privileges',type:'RN_LICENSE',jurisdiction:'US_MA',issuer:'Massachusetts Board of Registration in Nursing'});else v9OpenAdd()});
+ document.querySelectorAll('.details').forEach(btn=>btn.onclick=()=>showProof(+btn.dataset.id))
+}
+
+function renderV7Views(){
+ const ready=v7Readiness();if($('v7PassportReady'))$('v7PassportReady').textContent=ready+'%';
+ const passCats=['Licenses','Certifications','Education','Employment & HR','Clinical Qualifications'];
+ if($('v7PassportSections'))$('v7PassportSections').innerHTML=passCats.map(cat=>{
+   const arr=creds.filter(c=>catFor(c)===cat&&c.primary==='VERIFIED'&&c.prov?.active);
+   if(!arr.length)return'';
+   return `<div class="task-category-v7"><div class="cathead"><b>${ec(cat==='Employment & HR'?'Employment Experience':cat)}</b></div>${arr.map(c=>`<div class="passport-item-v7"><div><b>✓ ${ec(c.name)}</b><div class="small">${ec(c.prov?.source||'Verified source')}</div></div><div><span class="badge ${userChainClass(c)}">${ec(userChain(c))}</span> <button class="mini details" data-id="${c.id}">View</button></div></div>`).join('')}</div>`
+ }).join('');
+ const cats=['Licenses','Certifications','Education','Employment & HR','Employee Health','Clinical Qualifications','Background & Screening','Submitted Credentials'];
+ if($('v7TaskCategories'))$('v7TaskCategories').innerHTML=cats.map(cat=>{
+   const arr=creds.filter(c=>catFor(c)===cat),verified=arr.filter(c=>c.primary==='VERIFIED').length,exp=arr.filter(c=>c.primary==='EXPIRING').length,missing=arr.filter(c=>['UNVERIFIED','EXPIRED','REVOKED'].includes(c.primary)).length;
+   return `<div class="task-category-v7"><div class="cathead"><b>${ec(cat)}</b><div class="counts"><span class="chip">${arr.length} items</span><span class="chip">${verified} verified</span><span class="chip">${exp} expiring</span><span class="chip">${missing} missing/action</span></div></div>${arr.map(c=>`<div class="task-item-v7"><div><b>${ec(c.name)}</b><div class="small">${ec(c.primary)}${c.expiration?' · '+fd(c.expiration):''}</div></div><button class="mini details" data-id="${c.id}">${c.primary==='EXPIRING'?'Renew':'Open'}</button></div>`).join('')}</div>`
+ }).join('');
+ const a=[['RN_CA_ACTIVE','CA RN'],['CERT_ACLS','ACLS'],['CERT_BLS','BLS'],['CERT_CCRN','CCRN'],['EMP_ICU_VERIFIED','ICU experience']];
+ const b=[['RN_MA_ACTIVE','Massachusetts RN'],['CERT_ACLS','ACLS'],['CERT_BLS','BLS'],['CERT_CCRN','CCRN'],['EMP_ICU_VERIFIED','ICU experience']];
+ function opp(list,scoreId,reqId,btnId){const ok=list.filter(x=>v7ReqMatch(x[0])).length;$(scoreId).textContent=`${ok}/${list.length}`;$(reqId).innerHTML=list.map(x=>`<li>${v7ReqMatch(x[0])?'✓':'○'} ${ec(x[1])}</li>`).join('');$(btnId).textContent=ok===list.length?'Ready to Apply':'Complete Requirement'}
+ if($('v7Opp1Score'))opp(a,'v7Opp1Score','v7Opp1Reqs','v7Opp1Action');
+ if($('v7Opp2Score'))opp(b,'v7Opp2Score','v7Opp2Reqs','v7Opp2Action');
+ document.querySelectorAll('.details').forEach(btn=>btn.onclick=()=>showProof(+btn.dataset.id));v9RenderClinicianViews();v9RenderTasks()
+}
+function randomShareToken(){return [...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,'0')).join('')}
+
+let accessFilterV9='ACTIVE',extensionGrantV9=null;
+function v9RecommendedShareIds(assignmentId){
+ const a=V81_ASSIGNMENTS.find(x=>x.id===assignmentId);if(!a)return creds.filter(v9Current).filter(c=>c.sensitivity!=='HIGH').map(c=>c.id);
+ const ids=[];a.reqs.forEach(r=>{const c=creds.find(x=>v81Match(r,x));if(c)ids.push(c.id)});return [...new Set(ids)]
+}
+function openV7Share(){
+ const aid=$('shareAssignmentV9')?.value||'boston',rec=v9RecommendedShareIds(aid);
+ const shareable=creds.filter(v9Current);
+ $('shareV7Options').innerHTML=shareable.map(c=>`<label class="share-option"><span><b>${ec(v9ShareLabel(c))}</b><span class="small">${ec(c.category||catFor(c))}${c.sensitivity==='HIGH'?' · source document stays private':''}</span></span><input type="checkbox" class="v7sharecheck" value="${c.id}" ${rec.includes(c.id)?'checked':''}></label>`).join('');
+ $('shareV7Result').classList.add('hidden');$('shareV7').showModal()
+}
+function v9RenderAccess(){
+ if(!$('v9AccessList'))return;const grants=v9Access().filter(g=>accessFilterV9==='PENDING'?g.extensionRequest?.status==='PENDING':v9GrantStatus(g)===accessFilterV9);
+ $('v9AccessList').innerHTML=grants.length?grants.map(g=>`<div class="share-access-row"><div class="share-access-head"><div><b>${ec(g.organization)}</b><div class="small">${ec(g.assignmentName||'General Passport Share')} · ${ec(g.duration)}</div></div><span class="badge ${v9GrantStatus(g)==='ACTIVE'?'READY':v9GrantStatus(g)==='REVOKED'?'REVOKED':'PENDING'}">${ec(v9GrantStatus(g))}</span></div><div class="small" style="margin-top:5px">Created: ${new Date(g.created).toLocaleString()} · Expires: ${g.expiresAt?new Date(g.expiresAt).toLocaleString():'Until revoked'} · Last accessed: ${g.lastAccessed?new Date(g.lastAccessed).toLocaleString():'Not yet'}</div><div class="scope-v9">${g.ids.map(id=>{const c=creds.find(x=>x.id===id);return c?`<span>${ec(v9ShareLabel(c))}</span>`:''}).join('')}</div>${g.extensionRequest?.status==='PENDING'?`<div class="alert-v81" style="margin-top:8px">${ec(g.organization)} requests access through ${new Date(g.extensionRequest.requestedExpiration).toLocaleDateString()}.</div>`:''}<div class="share-actions-v9">${v9GrantStatus(g)==='ACTIVE'?`<button class="sec revokeGrantV9" data-id="${g.id}">Revoke Access</button>`:''}${g.extensionRequest?.status==='PENDING'?`<button class="pri reviewExtensionV9" data-id="${g.id}">Review Extension</button>`:''}</div></div>`).join(''):'<div class="small">No records in this section.</div>';
+ document.querySelectorAll('.revokeGrantV9').forEach(b=>b.onclick=()=>v9RevokeGrant(b.dataset.id));document.querySelectorAll('.reviewExtensionV9').forEach(b=>b.onclick=()=>v9ReviewExtension(b.dataset.id))
+}
+function v9RevokeGrant(id){
+ if(!confirm('Revoke access? The organization will lose access to the live Passport. This cannot erase information they may already have downloaded externally.'))return;
+ const a=v9Access(),g=a.find(x=>x.id===id);if(!g)return;g.status='REVOKED';g.revokedAt=new Date().toISOString();v9SaveAccess(a);v81Log('SHARE_REVOKED',null,{actor_type:'CLINICIAN',result:g.organization});v9RenderAccess();v81RenderRoles()
+}
+function v9RequestExtension(id){
+ const a=v9Access(),g=a.find(x=>x.id===id);if(!g)return;const current=g.expiresAt?new Date(g.expiresAt):new Date(),requested=new Date(current.getTime()+14*86400000);g.extensionRequest={status:'PENDING',requestedExpiration:requested.toISOString(),requestedAt:new Date().toISOString()};v9SaveAccess(a);v81Log('SHARE_EXTENSION_REQUESTED',null,{actor_type:'ORGANIZATION',result:g.organization});v81RenderRoles();v9RenderAccess();alert('Extension request sent to the clinician for approval.')
+}
+function v9ReviewExtension(id){
+ const g=v9Access().find(x=>x.id===id);if(!g)return;extensionGrantV9=id;$('extensionText').innerHTML=`<p><b>${ec(g.organization)}</b> requests continued Passport access through <b>${new Date(g.extensionRequest.requestedExpiration).toLocaleDateString()}</b>.</p><p class="small">The organization cannot extend access without clinician approval.</p>`;$('extensionDlg').showModal()
+}
+function v9ResolveExtension(approve){
+ const a=v9Access(),g=a.find(x=>x.id===extensionGrantV9);if(!g)return;if(approve){g.expiresAt=g.extensionRequest.requestedExpiration;g.extensionRequest.status='APPROVED';v81Log('SHARE_EXTENDED',null,{actor_type:'CLINICIAN',result:g.organization})}else{g.extensionRequest.status='DECLINED'}v9SaveAccess(a);$('extensionDlg').close();v9RenderAccess();v81RenderRoles()
+}
+function v9RenderActivity(){
+ if(!$('v9ActivityList'))return;const ev=v81Events().slice().reverse().slice(0,50);$('v9ActivityList').innerHTML=ev.length?ev.map(e=>`<div class="row-v81"><b>${ec(e.event_type)}</b><div class="small">${new Date(e.timestamp).toLocaleString()} · ${ec(e.actor_type)}${e.result?' · '+ec(e.result):''}</div></div>`).join(''):'<div class="small">No activity yet.</div>'
+}
+
+
+function openVerify(id){
+ const c=creds.find(x=>x.id===id);if(!c)return;c.primary='VERIFYING';c.prov=c.prov||{};c.prov.lastMonitored=new Date().toISOString();
+ v81Log('VERIFICATION_STARTED',c.id,{actor_type:'CLINICIAN',result:'QUEUED'});save();render();v81RenderRoles();
+ alert(c.name+' was submitted to the Verification Console.')
+}
+function completeVerify(){
+ const c=creds.find(x=>x.id===verifyId);if(!c)return;const now=new Date().toISOString(),active=$('vactive').value==='true';
+ c.prov={source:$('vsource').value.trim()||'Primary source',method:$('vmethod').value,verifier:$('vverifier').value.trim()||'NurseCredX Verification Service',verifiedAt:now,active,lastMonitored:now};
+ c.primary=active?'VERIFIED':'REVOKED';c.verification_method=c.prov.method;c.last_verified_date=now.slice(0,10);c.last_monitored_date=now.slice(0,10);
+ save();render();v81RenderRoles();$('verifyDlg').close()
+}
+async function wallets(client){
+ let s=sessionStorage.getItem(WK);if(s){let d=JSON.parse(s);return{issuer:xrpl.Wallet.fromSeed(d.i),subject:xrpl.Wallet.fromSeed(d.s)}}
+ setBusy('Creating disposable XRPL Devnet wallets…');
+ let issuer=(await client.fundWallet()).wallet,subject=(await client.fundWallet()).wallet;
+ sessionStorage.setItem(WK,JSON.stringify({i:issuer.seed,s:subject.seed}));
+ $('walletInfo').textContent=`Advanced proof demo · issuer ${issuer.address.slice(0,7)}… · subject ${subject.address.slice(0,7)}…`;
+ return{issuer,subject}
+}
+async function issue(id){
+ let c=creds.find(x=>x.id===id);if(!eligible(c))return;
+ if(typeof xrpl==='undefined'){alert('Advanced verification library did not load. Check your connection.');return}
+ let client=new xrpl.Client(WS);
+ try{
+  setBusy('Creating optional cryptographic proof…');await client.connect();let{issuer,subject}=await wallets(client);
+  let proofRef=location.origin+location.pathname+'?proof='+encodeURIComponent(c.type),
+      tx={TransactionType:'CredentialCreate',Account:issuer.address,Subject:subject.address,CredentialType:xrpl.convertStringToHex(c.type),URI:xrpl.convertStringToHex(proofRef)};
+  if(c.expiration)tx.Expiration=xrpl.isoTimeToRippleTime(new Date(c.expiration+'T23:59:59Z').toISOString());
+  let r=await client.submitAndWait(tx,{wallet:issuer,autofill:true}),code=r.result.meta?.TransactionResult;if(code!=='tesSUCCESS')throw Error(code);
+  Object.assign(c,{chain:'SECURING',issuer:issuer.address,subject:subject.address,issueTx:r.result.hash,issueLedger:r.result.ledger_index||'',issueDate:new Date().toISOString(),proofRef});
+  v81Log('PROOF_CREATED',c.id,{actor_type:'SYSTEM',result:'XRPL_DEVNET'});save();render();showProof(id)
+ }catch(e){console.error(e);alert('Advanced proof creation failed: '+(e.message||e))}
+ finally{setBusy('');if(client.isConnected())await client.disconnect()}
+}
+async function accept(id){
+ let c=creds.find(x=>x.id===id),s=sessionStorage.getItem(WK);if(!s){alert('Demo subject wallet is unavailable in this browser session.');return}
+ let client=new xrpl.Client(WS);
+ try{
+  setBusy('Accepting optional credential proof…');await client.connect();let subject=xrpl.Wallet.fromSeed(JSON.parse(s).s),
+      tx={TransactionType:'CredentialAccept',Account:subject.address,Issuer:c.issuer,CredentialType:xrpl.convertStringToHex(c.type)},
+      r=await client.submitAndWait(tx,{wallet:subject,autofill:true}),code=r.result.meta?.TransactionResult;if(code!=='tesSUCCESS')throw Error(code);
+  Object.assign(c,{chain:'ACCEPTED',acceptTx:r.result.hash,acceptLedger:r.result.ledger_index||'',acceptDate:new Date().toISOString()});save();render();showProof(id)
+ }catch(e){console.error(e);alert('Advanced proof acceptance failed: '+(e.message||e))}
+ finally{setBusy('');if(client.isConnected())await client.disconnect()}
+}
+
+function showProof(id){
+ let c=v81Normalize(creds.find(x=>x.id===id)),p=c.prov||{},b=v81Assignment(V81_ASSIGNMENTS[0]);
+ const uploaded=c.uploaded?'YES':'NO',verified=c.primary==='VERIFIED'?'YES':'NO',current=v9Current(c)?'YES':'NO',compatible=V81_ASSIGNMENTS[0].reqs.some(r=>r.type===c.type||r.label===c.name)?(b.ready||v9Current(c)?'CHECK ASSIGNMENT RULES':'NO'):'NOT REQUIRED';
+ $('proofState').innerHTML=`<b>${ec(c.name)}</b><div class="state-grid-v9"><div class="state-v9"><span>Uploaded</span><b>${uploaded}</b></div><div class="state-v9"><span>Verified</span><b>${verified}</b></div><div class="state-v9"><span>Current</span><b>${current}</b></div><div class="state-v9"><span>Assignment-Compatible</span><b>${compatible}</b></div></div><div class="small">Source document: <b>PRIVATE</b> · Sharing policy: <b>${ec(c.sharing_policy||'AUTHORIZED ASSERTION')}</b></div>`;
+ const items=[['Credential Type',c.type],['Category',c.category||catFor(c)],['Jurisdiction',c.jurisdiction||'—'],['Issuer',c.issuer||p.source||'—'],['Verification Status',c.primary],['Verification Source',p.source||'—'],['Verification Method',c.verification_method||p.method||'—'],['Official Expiration',fd(c.official_expiration_date||c.expiration)],['Recommended Refresh',c.recommended_refresh_date||'—'],['Last Verification',c.last_verified_date||'—'],['Last Monitoring Check',c.last_monitored_date||'—'],['Validity Class',c.validity_class||'—'],['Sensitivity',c.sensitivity||'—'],['Storage Policy',c.storage_policy||'PRIVATE_OFF_CHAIN'],['Proof Status',userChain(c)],['XRPL Network',c.issuer&&c.chain!=='NOT ISSUED'?'Devnet':'—'],['Issuer Wallet',c.chain!=='NOT ISSUED'?(c.issuer||'—'):'—'],['Subject Wallet',c.subject||'—'],['Create Transaction',c.issueTx||'—'],['Accept Transaction',c.acceptTx||'—']];
+ $('proofGrid').innerHTML=items.map(x=>`<div>${ec(x[0])}</div><div class="mono">${ec(x[1])}</div>`).join('');const h=c.acceptTx||c.issueTx;$('explorer').style.visibility=h?'visible':'hidden';if(h)$('explorer').href=EX+'/transactions/'+h;$('proof').showModal()
+}
+function enc(o){return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}function dec(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return JSON.parse(decodeURIComponent(escape(atob(s))))}function passPayload(){const a=creds.filter(v9Current),ob=onboarding();if(!a.length)return null;return{types:a.filter(c=>c.sharing_policy!=='COMPLIANCE_ASSERTION_ONLY').map(c=>({t:c.type,n:v9ShareLabel(c),e:c.expiration||'',s:c.prov?.source||'',v:c.prov?.verifiedAt||''})),onboarding:{ready:ob.ready,pct:ob.pct}}}
+async function openPass(){
+ let a=creds.filter(v9Current);
+ $('passRows').innerHTML=a.length?a.map(c=>`<div class="passrow"><div><b>${ec(v9ShareLabel(c))}</b><div class="small">${ec(c.prov?.source||'Verified source')} · ${c.prov?.verifiedAt?new Date(c.prov.verifiedAt).toLocaleDateString():''}</div><div class="small">${ec(c.category||catFor(c))}</div></div><span class="badge VERIFIED">CURRENT</span></div>`).join(''):'<div class="empty"><b>No verified current credentials yet.</b></div>';
+ $('score').textContent=v7Readiness()+'%';
+ const payload=passPayload(),url=payload?location.origin+location.pathname+'?passport='+enc(payload):location.origin+location.pathname;
+ $('passUrl').textContent=url;const q=$('qr'),oq=$('onboardQR');q.getContext('2d').clearRect(0,0,q.width,q.height);oq.getContext('2d').clearRect(0,0,oq.width,oq.height);
+ if(payload&&window.QRCode)await QRCode.toCanvas(q,url,{width:230,margin:2});
+ const ob=onboarding();if(ob.ready&&payload){const ourl=location.origin+location.pathname+'?onboarding='+enc(payload);$('onboardUrl').textContent=ourl;$('onboardQRStatus').innerHTML='<span class="badge READY">PASSPORT BASELINE CURRENT</span>';if(window.QRCode)await QRCode.toCanvas(oq,ourl,{width:230,margin:2})}else{$('onboardUrl').textContent='';$('onboardQRStatus').textContent=`${ob.ok}/${ob.req.length} Passport baseline items satisfied`}
+ $('passport').showModal()
+}
+function openOnboard(){const ob=onboarding();$('onboardRows').innerHTML=ob.req.map(c=>`<div class="reqrow"><div><b>${ec(c.name)}</b><div class="source">${ec(c.prov?.source||'Primary source pending')}</div></div><span class="badge ${reqSatisfied(c)?'READY':'PENDING'}">${reqSatisfied(c)?'SATISFIED':'PENDING'}</span></div>`).join('');$('onboard').showModal()}
+
+function publicShareV7(encoded){
+ $('landing').classList.add('hidden');$('app').classList.add('hidden');$('organizationWorkspace').classList.remove('active');$('verificationWorkspace').classList.remove('active');$('public').classList.remove('hidden');
+ let d;try{d=dec(encoded)}catch{$('pubStatus').textContent='Invalid secure share link';return}
+ const a=v9Access(),g=a.find(x=>x.id===d.grantId);if(!g){$('pubStatus').textContent='Passport access not found';return}
+ const status=v9GrantStatus(g);if(status==='REVOKED'){$('pubStatus').textContent='PASSPORT ACCESS REVOKED BY CLINICIAN';$('pubRows').innerHTML=`<div class="notice">Access was revoked ${g.revokedAt?new Date(g.revokedAt).toLocaleString():''}.</div>`;return}if(status==='EXPIRED'){$('pubStatus').textContent='PASSPORT ACCESS EXPIRED';return}
+ g.lastAccessed=new Date().toISOString();v9SaveAccess(a);v81Log('SHARE_VIEWED',null,{actor_type:'ORGANIZATION',result:g.organization});
+ const selected=creds.filter(c=>g.ids.includes(c.id)&&v9Current(c));
+ $('pubStatus').textContent=`Authorized Passport · ${g.organization} · ${g.assignmentName}`;
+ $('pubRows').innerHTML=selected.map(c=>`<div class="passrow"><div><b>${ec(v9ShareLabel(c))}</b><div class="small">${c.sharing_policy==='COMPLIANCE_ASSERTION_ONLY'?'Minimum-necessary compliance assertion':ec(c.prov?.source||'Verified source')}</div></div><span class="badge VERIFIED">CURRENT</span></div>`).join('');
+ $('pubScore').textContent=selected.length?selected.length+'/'+g.ids.length:'0';$('pubOnboard').innerHTML=`<b>Access</b><div class="small" style="margin-top:5px">${ec(g.duration)}${g.expiresAt?' · expires '+new Date(g.expiresAt).toLocaleString():' · until revoked'}</div><div class="small">Sensitive source documents are not included.</div>`
+}
+
+async function publicView(code,isOnboard=false){$('landing').classList.add('hidden');$('app').classList.add('hidden');$('public').classList.remove('hidden');let d;try{d=dec(code)}catch{$('pubStatus').textContent='Invalid NurseCredX link';return}$('pubRows').innerHTML=d.types.map(x=>`<div class="passrow"><div><b>${ec(x.n)}</b><div class="small">${ec(x.s||'Primary source')} · ${x.v?new Date(x.v).toLocaleDateString():''}</div><div class="small mono">${ec(x.t)}</div></div><span class="badge VERIFYING" id="p_${ec(x.t)}">CHECKING</span></div>`).join('');$('pubOnboard').innerHTML=isOnboard?`<b>Onboarding QR</b><div class="small" style="margin-top:5px">${d.onboarding?.ready?'All encoded onboarding requirements were satisfied when this Passport was created.':'Onboarding was not complete when this Passport was created.'}</div>`:'<b>Professional Passport</b><div class="small" style="margin-top:5px">Credential proofs are checked live below.</div>';if(typeof xrpl==='undefined'){$('pubStatus').textContent='Verification network unavailable.';return}let client=new xrpl.Client(WS);try{await client.connect();let q={command:'account_objects',account:d.subject,type:'credential',ledger_index:'validated',limit:400},r=await client.request(q),objs=[...(r.result.account_objects||[])];while(r.result.marker){q.marker=r.result.marker;r=await client.request(q);objs.push(...(r.result.account_objects||[]))}let ok=0;d.types.forEach(x=>{let h=xrpl.convertStringToHex(x.t).toUpperCase(),f=objs.find(o=>o.Issuer===d.issuer&&o.Subject===d.subject&&String(o.CredentialType).toUpperCase()===h&&(o.Flags&AF)),el=$('p_'+x.t);if(f){el.textContent='VERIFIED LIVE';el.className='badge ACCEPTED';ok++}else{el.textContent='NOT FOUND';el.className='badge REVOKED'}});$('pubScore').textContent=d.types.length?Math.round(ok/d.types.length*100)+'%':'0%';$('pubStatus').textContent=`Live XRPL Devnet check complete · ${ok}/${d.types.length} accepted proofs found`}catch(e){console.error(e);$('pubStatus').textContent='Could not reach the verification network. Refresh to retry.'}finally{if(client.isConnected())await client.disconnect()}}
+$('roleClinician').onclick=()=>v81ShowRole('clinician');$('roleOrganization').onclick=()=>v81ShowRole('organization');$('roleVerification').onclick=()=>v81ShowRole('verification');$('switchRoleClinician').onclick=v81RolePicker;document.querySelectorAll('.switchRoleV81').forEach(b=>b.onclick=v81RolePicker);document.querySelectorAll('.orgTab').forEach(b=>b.onclick=()=>v81Tabs('orgTab','orgPanel',b.dataset.target));document.querySelectorAll('.verifyTab').forEach(b=>b.onclick=()=>v81Tabs('verifyTab','verifyPanel',b.dataset.target));$('logout').onclick=v81RolePicker;$('addBtn').onclick=()=>v9OpenAdd();$('resetDemo').onclick=()=>{if(confirm('Reset the RN golden demo to Boston ICU 11/12 ready?')){initNewcomer(true);render();v81RenderRoles();showV7View('homeView')}};$('save').onclick=()=>{
+ const meta=catalogByType($('catalogCredential').value);if(!meta)return;
+ const jur=meta.jurisdiction?$('jurisdictionV9').value:'';if(meta.jurisdiction&&!jur){alert('Choose the credential jurisdiction.');return}
+ const name=meta.type==='CUSTOM'?$('nm').value.trim():meta.name;if(!name){alert('Enter a custom credential name.');return}
+ const issuer=meta.issuer?$('issuerV9').value.trim():'';
+ const f=$('fl').files[0],id=Date.now();
+ const c=v9ApplyCatalog(v81Normalize({id,name,type:meta.type,jurisdiction:jur,issuer,issued_date:$('issueDateV9').value,section:meta.category,category:meta.category,required:false,privateOnly:false,primary:'VERIFYING',chain:'NOT ISSUED',expiration:$('dt').value,official_expiration_date:$('dt').value,file:f?f.name:'',uploaded:true,prov:{source:'',method:'',verifier:'',verifiedAt:'',active:false,lastMonitored:new Date().toISOString()}}),meta);
+ creds.push(c);save();v81Log('CREDENTIAL_UPLOADED',id,{actor_type:'CLINICIAN',result:'PENDING_VERIFICATION'});v81Log('CLASSIFICATION_COMPLETED',id,{actor_type:'SYSTEM',result:'SIMULATED_CLASSIFICATION'});v81Log('VERIFICATION_STARTED',id,{actor_type:'SYSTEM',verification_method:meta.verify,result:'QUEUED'});render();v81RenderRoles();$('add').close();
+ if(meta.type==='RN_LICENSE'&&jur==='US_MA')alert('Massachusetts RN License added as Pending Verification. Open the Verification Console to run the simulated primary-source check.')
+};$('confirmVerify').onclick=completeVerify;document.querySelectorAll('.xadd').forEach(b=>b.onclick=()=>$('add').close());document.querySelectorAll('.xverify').forEach(b=>b.onclick=()=>$('verifyDlg').close());document.querySelectorAll('.xproof').forEach(b=>b.onclick=()=>$('proof').close());document.querySelectorAll('.xonboard').forEach(b=>b.onclick=()=>$('onboard').close());document.querySelectorAll('.xpass').forEach(b=>b.onclick=()=>$('passport').close());document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('on'));b.classList.add('on');filter=b.dataset.f;render()});document.querySelectorAll('.v7nav').forEach(b=>b.onclick=()=>showV7View(b.dataset.view));
+$('v7Add').onclick=()=>v9OpenAdd();$('v7Pass').onclick=()=>showV7View('passportView');$('v7Tasks').onclick=()=>showV7View('tasksView');$('v7Share').onclick=openV7Share;
+$('v7SharePass').onclick=openV7Share;$('v7PassportShare2').onclick=openV7Share;$('v7PassportQR').onclick=openPass;
+document.querySelectorAll('.xsharev7').forEach(b=>b.onclick=()=>$('shareV7').close());
+$('generateV7Share').onclick=async()=>{
+ const ids=[...document.querySelectorAll('.v7sharecheck:checked')].map(x=>+x.value);if(!ids.length){alert('Select at least one credential assertion.');return}
+ const assignmentId=$('shareAssignmentV9').value,assignment=V81_ASSIGNMENTS.find(x=>x.id===assignmentId),duration=$('shareV7Duration').value,expiresAt=v9Expiration(duration,assignment,$('customShareDateV9').value),grantId='grant_'+Date.now(),token=randomShareToken();
+ const grant={id:grantId,token,organization:$('shareOrgV9').value,assignmentId,assignmentName:assignment?.name||'General Passport Share',ids,duration,created:new Date().toISOString(),expiresAt,status:'ACTIVE',lastAccessed:null,extensionRequest:null};
+ const a=v9Access();a.push(grant);v9SaveAccess(a);v81Log('SHARE_CREATED',null,{actor_type:'CLINICIAN',result:grant.organization});ids.forEach(id=>v81Log('CREDENTIAL_REUSED',id,{actor_type:'SYSTEM',result:grant.assignmentName}));
+ const payload={grantId},encoded=enc(payload),url=location.origin+location.pathname+'?sharev7='+token+'#'+encoded;$('shareV7Link').textContent=url;$('shareV7Result').classList.remove('hidden');const canvas=$('shareV7QR');if(window.QRCode)await QRCode.toCanvas(canvas,url,{width:230,margin:2});v9RenderAccess();v81RenderRoles()
+};
+
+
+$('shareV7Duration').onchange=()=>{$('customShareDateWrap').classList.toggle('hidden',$('shareV7Duration').value!=='Custom Date')};
+$('shareAssignmentV9').onchange=()=>openV7Share();
+$('catalogSearch').oninput=e=>v9SearchCatalog(e.target.value);
+$('v9AddCredential').onclick=()=>v9OpenAdd();$('v9NewShare').onclick=openV7Share;
+document.querySelectorAll('.menuGo').forEach(b=>b.onclick=()=>showV7View(b.dataset.view));
+document.querySelectorAll('.accessFilter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.accessFilter').forEach(x=>x.classList.remove('on'));b.classList.add('on');accessFilterV9=b.dataset.status;v9RenderAccess()});
+document.querySelectorAll('.xextension').forEach(b=>b.onclick=()=>$('extensionDlg').close());$('approveExtensionV9').onclick=()=>v9ResolveExtension(true);$('declineExtensionV9').onclick=()=>v9ResolveExtension(false);
+$('saveProfileV9').onclick=()=>{const p={specialty:$('profileSpecialty').value,workTypes:[...document.querySelectorAll('#profileWorkTypes input:checked')].map(x=>x.value),primaryState:$('profilePrimaryState').value,compact:$('profileCompact').value};localStorage.setItem(V9_PROFILE,JSON.stringify(p));alert('RN profile saved for this demo browser.')};
+
+$('passBtn').onclick=openPass;$('sidePass').onclick=openPass;$('toPass').onclick=()=>{$('proof').close();openPass()};$('onboardBtn').onclick=openOnboard;$('sideOnboard').onclick=openOnboard;initNewcomer();v81RenderRoles();let params=new URLSearchParams(location.search);if(params.get('sharev7')&&location.hash){publicShareV7(location.hash.slice(1))}else if(params.get('passport'))publicView(params.get('passport'),false);else if(params.get('onboarding'))publicView(params.get('onboarding'),true);else render();
+});
+</script>
+</body>
+</html>
